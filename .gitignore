@@ -40,3 +40,5 @@ Thumbs.db
 # 其他临时目录/文件
 tmp/
 *.log
+.gitignore
+CLAUDE.md
