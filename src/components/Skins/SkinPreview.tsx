@@ -1,11 +1,11 @@
 import React from 'react';
-import { BaoniaoSkin } from '../../types/game';
+import { BirdSkin } from '../../types/game';
 import { cn } from '../../lib/utils';
 import { RARITY_CONFIG } from '../../utils/skinSystem';
 import CoinIcon from '../CoinSystem/CoinIcon';
 
 interface SkinPreviewProps {
-  skin: BaoniaoSkin;
+  skin: BirdSkin;
   size?: 'sm' | 'md' | 'lg';
   animated?: boolean;
   className?: string;
@@ -25,7 +25,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
     lg: 'w-24 h-24'
   };
   
-  const baoniaoSize = {
+  const birdSize = {
     sm: 24,
     md: 32,
     lg: 48
@@ -40,7 +40,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
     
-    const canvasSize = baoniaoSize[size];
+    const canvasSize = birdSize[size];
     canvas.width = canvasSize * 2;
     canvas.height = canvasSize * 2;
     
@@ -70,13 +70,13 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
         ctx.shadowOffsetY = 0;
       }
       
-      // 宝鸟身体渲染
+      // 小鸟身体渲染
       if (skin.effects?.gradient && skin.colors.secondary) {
-        const baoniaoGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, canvasSize);
-        baoniaoGradient.addColorStop(0, skin.colors.primary);
-        baoniaoGradient.addColorStop(0.7, skin.colors.secondary);
-        baoniaoGradient.addColorStop(1, skin.colors.accent || skin.colors.secondary);
-        ctx.fillStyle = baoniaoGradient;
+        const birdGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, canvasSize);
+        birdGradient.addColorStop(0, skin.colors.primary);
+        birdGradient.addColorStop(0.7, skin.colors.secondary);
+        birdGradient.addColorStop(1, skin.colors.accent || skin.colors.secondary);
+        ctx.fillStyle = birdGradient;
       } else {
         ctx.fillStyle = skin.colors.primary;
       }
@@ -107,7 +107,7 @@ const SkinPreview: React.FC<SkinPreviewProps> = ({
         ctx.fillStyle = iceGradient;
       }
       
-      // 绘制宝鸟身体
+      // 绘制小鸟身体
       ctx.beginPath();
       ctx.arc(0, 0, canvasSize / 2, 0, Math.PI * 2);
       ctx.fill();

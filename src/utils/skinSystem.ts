@@ -1,4 +1,4 @@
-import { BaoniaoSkin, SkinData, SkinSkill } from '../types/game';
+import { BirdSkin, SkinData, SkinSkill } from '../types/game';
 
 // 技能定义
 export const SKIN_SKILLS: Record<string, SkinSkill> = {
@@ -35,7 +35,7 @@ export const SKIN_SKILLS: Record<string, SkinSkill> = {
   frost: {
     id: 'frost',
     name: '时间冰结',
-    description: '按E键冻结所有管道移动3秒，宝鸟正常飞行',
+    description: '按E键冻结所有管道移动3秒，小鸟正常飞行',
     cooldown: 30000, // 30秒冷却时间
     icon: '🧊',
     effectType: 'freeze',
@@ -45,7 +45,7 @@ export const SKIN_SKILLS: Record<string, SkinSkill> = {
   gravity: {
     id: 'gravity',
     name: '重力反转',
-    description: '按E键反转重力方向3秒，宝鸟向上飘浮',
+    description: '按E键反转重力方向3秒，小鸟向上飘浮',
     cooldown: 30000, // 30秒冷却时间
     icon: '↕️',
     effectType: 'gravity',
@@ -85,12 +85,12 @@ export const SKIN_SKILLS: Record<string, SkinSkill> = {
 };
 
 // 所有可用皮肤数据
-export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
+export const BIRD_SKINS: Record<string, BirdSkin> = {
   // 🆓 基础皮肤系列（3种 - 无技能）
   classic: {
     id: 'classic',
-    name: '经典宝鸟',
-    description: '原版蓝色宝鸟，经典永不过时',
+    name: '经典小鸟',
+    description: '原版蓝色小鸟，经典永不过时',
     price: 0,
     rarity: 'common',
     category: 'basic',
@@ -109,7 +109,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   fire_basic: {
     id: 'fire_basic',
-    name: '炽热宝鸟',
+    name: '炽热小鸟',
     description: '红色火焰主题，热情洋溢',
     price: 300,
     rarity: 'common',
@@ -130,7 +130,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   frost_basic: {
     id: 'frost_basic',
-    name: '冰霜宝鸟',
+    name: '冰霜小鸟',
     description: '蓝白冰雪主题，清凉舒爽',
     price: 300,
     rarity: 'common',
@@ -152,7 +152,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   // 💰 普通皮肤系列（5种 - 无技能）
   rainbow: {
     id: 'rainbow',
-    name: '彩虹宝鸟',
+    name: '彩虹小鸟',
     description: '七彩渐变效果，绚烂多彩',
     price: 500,
     rarity: 'rare',
@@ -173,7 +173,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   gold: {
     id: 'gold',
-    name: '黄金宝鸟',
+    name: '黄金小鸟',
     description: '金色奢华主题，尊贵无比',
     price: 800,
     rarity: 'rare',
@@ -194,7 +194,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   night: {
     id: 'night',
-    name: '夜空宝鸟',
+    name: '夜空小鸟',
     description: '深蓝星空主题，神秘优雅',
     price: 600,
     rarity: 'rare',
@@ -215,7 +215,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   halloween: {
     id: 'halloween',
-    name: '万圣节宝鸟',
+    name: '万圣节小鸟',
     description: '橙色南瓜主题，节日氛围满满',
     price: 700,
     rarity: 'rare',
@@ -236,7 +236,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   diamond: {
     id: 'diamond',
-    name: '钻石宝鸟',
+    name: '钻石小鸟',
     description: '透明水晶效果，珍贵稀有',
     price: 1000,
     rarity: 'epic',
@@ -259,7 +259,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   // ⚡ 技能皮肤系列（12种 - 核心功能）
   storm_bird: {
     id: 'storm_bird',
-    name: '风暴宝鸟',
+    name: '风暴小鸟',
     description: '拥有旋风冲刺技能，可短时间疾速飞行',
     price: 1200,
     rarity: 'legendary',
@@ -282,7 +282,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   lightning_bird: {
     id: 'lightning_bird',
-    name: '雷电宝鸟',
+    name: '雷电小鸟',
     description: '拥有闪电传送技能，可瞬间穿越障碍',
     price: 1500,
     rarity: 'legendary',
@@ -306,7 +306,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   flame_bird: {
     id: 'flame_bird',
-    name: '烈焰宝鸟',
+    name: '烈焰小鸟',
     description: '拥有火球攻击技能，可摧毁管道障碍',
     price: 1800,
     rarity: 'legendary',
@@ -329,7 +329,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   frost_bird: {
     id: 'frost_bird',
-    name: '极冰宝鸟',
+    name: '极冰小鸟',
     description: '拥有时间冰结技能，可冻结所有管道',
     price: 2000,
     rarity: 'legendary',
@@ -353,7 +353,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   gravity_bird: {
     id: 'gravity_bird',
-    name: '重力宝鸟',
+    name: '重力小鸟',
     description: '拥有重力反转技能，可短时间向上飘浮',
     price: 2200,
     rarity: 'legendary',
@@ -377,7 +377,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   shield_bird: {
     id: 'shield_bird',
-    name: '护盾宝鸟',
+    name: '护盾小鸟',
     description: '拥有防护罩技能，短时间无敌状态',
     price: 2400,
     rarity: 'legendary',
@@ -401,7 +401,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   mini_bird: {
     id: 'mini_bird',
-    name: '迷你宝鸟',
+    name: '迷你小鸟',
     description: '拥有迷你化技能，短时间缩小体型',
     price: 2600,
     rarity: 'legendary',
@@ -425,7 +425,7 @@ export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
   
   magnet_bird: {
     id: 'magnet_bird',
-    name: '磁力宝鸟',
+    name: '磁力小鸟',
     description: '拥有超级磁铁技能，可吸引所有金币',
     price: 2800,
     rarity: 'legendary',
@@ -493,27 +493,27 @@ export const CATEGORY_CONFIG = {
 };
 
 // 获取所有皮肤列表
-export const getAllSkins = (): BaoniaoSkin[] => {
-  return Object.values(BAONIAO_SKINS);
+export const getAllSkins = (): BirdSkin[] => {
+  return Object.values(BIRD_SKINS);
 };
 
 // 根据类别获取皮肤
-export const getSkinsByCategory = (category: BaoniaoSkin['category']): BaoniaoSkin[] => {
+export const getSkinsByCategory = (category: BirdSkin['category']): BirdSkin[] => {
   return getAllSkins().filter(skin => skin.category === category);
 };
 
 // 根据稀有度获取皮肤
-export const getSkinsByRarity = (rarity: BaoniaoSkin['rarity']): BaoniaoSkin[] => {
+export const getSkinsByRarity = (rarity: BirdSkin['rarity']): BirdSkin[] => {
   return getAllSkins().filter(skin => skin.rarity === rarity);
 };
 
 // 获取技能皮肤
-export const getSkillSkins = (): BaoniaoSkin[] => {
+export const getSkillSkins = (): BirdSkin[] => {
   return getAllSkins().filter(skin => skin.skill);
 };
 
 // 获取已解锁的皮肤
-export const getUnlockedSkins = (): BaoniaoSkin[] => {
+export const getUnlockedSkins = (): BirdSkin[] => {
   const skinData = loadSkinData();
   return getAllSkins().filter(skin => skinData.unlockedSkins.includes(skin.id) || skin.id === 'classic');
 };
@@ -521,7 +521,7 @@ export const getUnlockedSkins = (): BaoniaoSkin[] => {
 // 加载皮肤数据
 export const loadSkinData = (): SkinData => {
   try {
-    const data = localStorage.getItem('flappyBaoniaoSkins');
+    const data = localStorage.getItem('flappyBirdSkins');
     if (data) {
       const parsed = JSON.parse(data);
       return {
@@ -548,22 +548,22 @@ export const loadSkinData = (): SkinData => {
 // 保存皮肤数据
 export const saveSkinData = (skinData: SkinData): void => {
   try {
-    localStorage.setItem('flappyBaoniaoSkins', JSON.stringify(skinData));
+    localStorage.setItem('flappyBirdSkins', JSON.stringify(skinData));
   } catch (error) {
     console.error('Error saving skin data:', error);
   }
 };
 
 // 获取当前皮肤
-export const getCurrentSkin = (): BaoniaoSkin => {
+export const getCurrentSkin = (): BirdSkin => {
   try {
     const skinData = loadSkinData();
     const skinId = skinData.currentSkin;
     console.log('[DEBUG] 当前皮肤ID:', skinId);
     
-    if (skinId && BAONIAO_SKINS[skinId]) {
+    if (skinId && BIRD_SKINS[skinId]) {
       // 确保传说皮肤的技能完整初始化
-      const skin = { ...BAONIAO_SKINS[skinId] };
+      const skin = { ...BIRD_SKINS[skinId] };
       console.log('[DEBUG] 加载皮肤:', {
         id: skin.id, 
         name: skin.name, 
@@ -593,7 +593,7 @@ export const getCurrentSkin = (): BaoniaoSkin => {
   }
   
   // 默认使用经典皮肤
-  return BAONIAO_SKINS.classic;
+  return BIRD_SKINS.classic;
 };
 
 // 切换皮肤
@@ -601,7 +601,7 @@ export const switchSkin = (skinId: string): boolean => {
   const skinData = loadSkinData();
   
   // 检查皮肤是否存在且已解锁
-  if (!BAONIAO_SKINS[skinId]) {
+  if (!BIRD_SKINS[skinId]) {
     console.error('Skin not found:', skinId);
     return false;
   }
@@ -625,7 +625,7 @@ export const switchSkin = (skinId: string): boolean => {
 export const unlockSkin = (skinId: string): boolean => {
   const skinData = loadSkinData();
   
-  if (!BAONIAO_SKINS[skinId]) {
+  if (!BIRD_SKINS[skinId]) {
     console.error('Skin not found:', skinId);
     return false;
   }
@@ -653,8 +653,8 @@ export const isSkinUnlocked = (skinId: string): boolean => {
 };
 
 // 获取皮肤信息（更新解锁状态）
-export const getSkinInfo = (skinId: string): BaoniaoSkin | null => {
-  const skin = BAONIAO_SKINS[skinId];
+export const getSkinInfo = (skinId: string): BirdSkin | null => {
+  const skin = BIRD_SKINS[skinId];
   if (!skin) return null;
   
   const isUnlocked = isSkinUnlocked(skinId);
@@ -666,7 +666,7 @@ export const getSkinInfo = (skinId: string): BaoniaoSkin | null => {
 };
 
 // 获取所有皮肤信息（更新解锁状态）
-export const getAllSkinsInfo = (): BaoniaoSkin[] => {
+export const getAllSkinsInfo = (): BirdSkin[] => {
   return getAllSkins().map(skin => getSkinInfo(skin.id)!).filter(Boolean);
 };
 
@@ -684,7 +684,7 @@ export const validateSkinData = (data: any): SkinData => {
   
   return {
     unlockedSkins: Array.isArray(data.unlockedSkins) ? data.unlockedSkins : ['classic'],
-    currentSkin: typeof data.currentSkin === 'string' && BAONIAO_SKINS[data.currentSkin] 
+    currentSkin: typeof data.currentSkin === 'string' && BIRD_SKINS[data.currentSkin] 
       ? data.currentSkin 
       : 'classic',
     purchaseHistory: Array.isArray(data.purchaseHistory) ? data.purchaseHistory : []

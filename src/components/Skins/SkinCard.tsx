@@ -1,12 +1,12 @@
 import React from 'react';
-import { BaoniaoSkin } from '../../types/game';
+import { BirdSkin } from '../../types/game';
 import { cn } from '../../lib/utils';
 import { RARITY_CONFIG } from '../../utils/skinSystem';
 import SkinPreview from './SkinPreview';
 import CoinIcon from '../CoinSystem/CoinIcon';
 
 interface SkinCardProps {
-  skin: BaoniaoSkin;
+  skin: BirdSkin;
   isSelected?: boolean;
   isOwned?: boolean;
   canAfford?: boolean;

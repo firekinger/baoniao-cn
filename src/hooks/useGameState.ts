@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { GameState, GameConfig, Baoniao, Pipe, DifficultyConfig, CoinReward, GameStats, CoinGameSummary, BaoniaoSkin, SkinData, PowerUpVisualState, VisualEffect } from '../types/game';
+import { GameState, GameConfig, Bird, Pipe, DifficultyConfig, CoinReward, GameStats, CoinGameSummary, BirdSkin, SkinData, PowerUpVisualState, VisualEffect } from '../types/game';
 import { addToLeaderboard, loadSettings, saveSettings } from '../utils/gameUtils';
 import {
   loadCoinData,
@@ -101,7 +101,7 @@ const BASE_CONFIG: GameConfig = {
   canvasHeight: 600,
 };
 
-const INITIAL_BAONIAO: Baoniao = {
+const INITIAL_BIRD: Bird = {
   x: 100,
   y: 300,
   velocity: 0,
@@ -118,10 +118,10 @@ export const useGameState = () => {
   const [gameState, setGameState] = useState<GameState>({
     status: 'start',
     score: 0,
-    highScore: parseInt(localStorage.getItem('baoniaoHighScore') || '0'),
-    baoniao: { ...INITIAL_BAONIAO },
+    highScore: parseInt(localStorage.getItem('flappyBirdHighScore') || '0'),
+    bird: { ...INITIAL_BIRD },
     pipes: [],
-    playerName: localStorage.getItem('baoniaoPlayerName') || '',
+    playerName: localStorage.getItem('flappyBirdPlayerName') || '',
     difficulty: savedSettings.difficulty || 'easy', // 默认使用简单难度
     soundEnabled: savedSettings.soundEnabled,
     volume: savedSettings.volume,
@@ -180,7 +180,7 @@ export const useGameState = () => {
   const currentConfig = getGameConfig(gameState.difficulty);
 
   const savePlayerName = useCallback((name: string) => {
-    localStorage.setItem('baoniaoPlayerName', name);
+    localStorage.setItem('flappyBirdPlayerName', name);
     setGameState(prev => ({ ...prev, playerName: name }));
   }, []);
 
@@ -191,9 +191,9 @@ export const useGameState = () => {
     
     console.log('[DEBUG] Game starting - Config:', {
       canvasHeight: BASE_CONFIG.canvasHeight,
-      initialBaoniaoY: INITIAL_BAONIAO.y,
-      baoniaoSize: INITIAL_BAONIAO.size,
-      groundBoundary: BASE_CONFIG.canvasHeight - INITIAL_BAONIAO.size
+      initialBirdY: INITIAL_BIRD.y,
+      birdSize: INITIAL_BIRD.size,
+      groundBoundary: BASE_CONFIG.canvasHeight - INITIAL_BIRD.size
     });
     
     // 清理所有特效和内存
@@ -217,7 +217,7 @@ export const useGameState = () => {
     const freshSkillState = getInitialSkillState();
     
     // 只有新玩家第一次进入游戏时获得2000初始金币
-    const isFirstTimeUser = !localStorage.getItem('baoniaoFirstLogin');
+    const isFirstTimeUser = !localStorage.getItem('flappyBirdFirstLogin');
     if (isFirstTimeUser) {
       newCoinData = {
         ...newCoinData,
@@ -226,18 +226,18 @@ export const useGameState = () => {
       };
       localStorage.setItem('flappyBirdCoins', JSON.stringify(newCoinData));
       // 标记用户已经获得过初始金币
-      localStorage.setItem('baoniaoFirstLogin', 'true');
+      localStorage.setItem('flappyBirdFirstLogin', 'true');
     }
     
     // 计算安全的初始位置（距离顶部和底部都有安全距离）
-    const safeY = Math.max(50, Math.min(INITIAL_BAONIAO.y, BASE_CONFIG.canvasHeight - 100));
-
+    const safeY = Math.max(50, Math.min(INITIAL_BIRD.y, BASE_CONFIG.canvasHeight - 100));
+    
     setGameState(prev => ({
       ...prev,
       status: 'playing',
       score: 0,
-      baoniao: {
-        ...INITIAL_BAONIAO,
+      bird: { 
+        ...INITIAL_BIRD,
         y: safeY, // 使用安全的Y坐标
         velocity: 0 // 确保没有初始速度
       },
@@ -282,7 +282,7 @@ export const useGameState = () => {
     setGameState(prev => {
       const newHighScore = Math.max(prev.score, prev.highScore);
       if (newHighScore > prev.highScore) {
-        localStorage.setItem('baoniaoHighScore', newHighScore.toString());
+        localStorage.setItem('flappyBirdHighScore', newHighScore.toString());
       }
       
       // 计算游戏时长
@@ -319,8 +319,8 @@ export const useGameState = () => {
     if (gameState.status === 'playing') {
       setGameState(prev => ({
         ...prev,
-        baoniao: {
-          ...prev.baoniao,
+        bird: {
+          ...prev.bird,
           velocity: currentConfig.jumpForce,
         },
       }));
@@ -341,7 +341,7 @@ export const useGameState = () => {
       ...prev,
       status: 'start',
       score: 0,
-      baoniao: { ...INITIAL_BAONIAO },
+      bird: { ...INITIAL_BIRD },
       pipes: [],
       powerUps: [],
       activePowerUps: [],
@@ -462,7 +462,7 @@ export const useGameState = () => {
     return success;
   }, []);
   
-  const purchaseSkin = useCallback(async (skinId: string, price: number): Promise<{ success: boolean; reason: string; skin?: BaoniaoSkin }> => {
+  const purchaseSkin = useCallback(async (skinId: string, price: number): Promise<{ success: boolean; reason: string; skin?: BirdSkin }> => {
     // 检查金币是否足够
     if (gameState.coinData.coins < price) {
       return { success: false, reason: '金币不足' };
@@ -498,12 +498,12 @@ export const useGameState = () => {
       
       // 原子性写入操作：先备份，然后同时更新
       const coinBackup = localStorage.getItem('flappyBirdCoins');
-      const skinBackup = localStorage.getItem('flappyBaoniaoSkins');
+      const skinBackup = localStorage.getItem('flappyBirdSkins');
       
       try {
         // 同时更新两个存储
         localStorage.setItem('flappyBirdCoins', JSON.stringify(newCoinData));
-        localStorage.setItem('flappyBaoniaoSkins', JSON.stringify(newSkinData));
+        localStorage.setItem('flappyBirdSkins', JSON.stringify(newSkinData));
         
         // 更新状态
         setGameState(prev => ({
@@ -521,7 +521,7 @@ export const useGameState = () => {
       } catch (storageError) {
         // 如果存储失败，还原数据
         if (coinBackup) localStorage.setItem('flappyBirdCoins', coinBackup);
-        if (skinBackup) localStorage.setItem('flappyBaoniaoSkins', skinBackup);
+        if (skinBackup) localStorage.setItem('flappyBirdSkins', skinBackup);
         throw storageError;
       }
       
@@ -567,24 +567,24 @@ export const useGameState = () => {
         case 'teleport':
           // 闪电传送：瞬间向前移动
           const teleportDistance = skill.effectValue || 200;
-          updatedState.baoniao = {
-            ...updatedState.baoniao,
-            x: Math.min(updatedState.baoniao.x + teleportDistance, currentConfig.canvasWidth - updatedState.baoniao.size)
+          updatedState.bird = {
+            ...updatedState.bird,
+            x: Math.min(updatedState.bird.x + teleportDistance, currentConfig.canvasWidth - updatedState.bird.size)
           };
           break;
-
+          
         case 'destroy':
           // 火球攻击：摧毁最近的管道
           const nearestPipe = updatedState.pipes
-            .filter(pipe => pipe.x > updatedState.baoniao.x && !pipe.passed)
+            .filter(pipe => pipe.x > updatedState.bird.x && !pipe.passed)
             .sort((a, b) => a.x - b.x)[0];
-
+          
           if (nearestPipe) {
             // 移除最近的管道
             updatedState.pipes = updatedState.pipes.filter(pipe => pipe !== nearestPipe);
           }
           break;
-
+          
         case 'shield':
           // 防护罩：添加临时无敌效果
           updatedState.powerUpEffects = {
@@ -592,13 +592,13 @@ export const useGameState = () => {
             invincible: true // 启用无敌状态
           };
           break;
-
+          
         case 'shrink':
           // 迷你化：缩小体型
-          const originalSize = updatedState.baoniao.size;
+          const originalSize = updatedState.bird.size;
           const shrinkFactor = skill.effectValue || 0.5;
-          updatedState.baoniao = {
-            ...updatedState.baoniao,
+          updatedState.bird = {
+            ...updatedState.bird,
             size: originalSize * shrinkFactor
           };
           break;
@@ -617,34 +617,34 @@ export const useGameState = () => {
         let effect;
         switch (skill.effectType) {
           case 'dash':
-            effect = createSkillEffects.dash(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.dash(prev.bird.x, prev.bird.y);
             break;
           case 'teleport':
             // 计算传送终点位置（向前传送200像素，保持Y坐标不变）
-            const teleportEndX = updatedState.baoniao.x;
-            const teleportEndY = updatedState.baoniao.y;
-            effect = createSkillEffects.teleport(prev.baoniao.x, prev.baoniao.y, teleportEndX, teleportEndY);
+            const teleportEndX = updatedState.bird.x;
+            const teleportEndY = updatedState.bird.y;
+            effect = createSkillEffects.teleport(prev.bird.x, prev.bird.y, teleportEndX, teleportEndY);
             break;
           case 'destroy':
-            const targetPipe = prev.pipes.find(pipe => pipe.x > prev.baoniao.x && !pipe.passed);
+            const targetPipe = prev.pipes.find(pipe => pipe.x > prev.bird.x && !pipe.passed);
             if (targetPipe) {
               effect = createSkillEffects.destroy(targetPipe.x + targetPipe.width / 2, targetPipe.topHeight + targetPipe.gap / 2);
             }
             break;
           case 'freeze':
-            effect = createSkillEffects.freeze(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.freeze(prev.bird.x, prev.bird.y);
             break;
           case 'gravity':
-            effect = createSkillEffects.gravity(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.gravity(prev.bird.x, prev.bird.y);
             break;
           case 'shield':
-            effect = createSkillEffects.shield(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.shield(prev.bird.x, prev.bird.y);
             break;
           case 'shrink':
-            effect = createSkillEffects.shrink(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.shrink(prev.bird.x, prev.bird.y);
             break;
           case 'magnet':
-            effect = createSkillEffects.magnet(prev.baoniao.x, prev.baoniao.y);
+            effect = createSkillEffects.magnet(prev.bird.x, prev.bird.y);
             break;
         }
         
@@ -711,21 +711,21 @@ export const useGameState = () => {
       const gameStartTime = prev.gameStats?.gameStartTime || currentTime;
       const isInGracePeriod = (currentTime - gameStartTime) < gameStartGracePeriod;
 
-      // 更新宝鸟
-      newState.baoniao = {
-        ...prev.baoniao,
-        y: prev.baoniao.y + prev.baoniao.velocity,
-        velocity: prev.baoniao.velocity + currentConfig.gravity,
+      // 更新小鸟
+      newState.bird = {
+        ...prev.bird,
+        y: prev.bird.y + prev.bird.velocity,
+        velocity: prev.bird.velocity + currentConfig.gravity,
       };
 
-      // 检查宝鸟边界碰撞（关键修复：更合理的边界检测）
+      // 检查小鸟边界碰撞（关键修复：更合理的边界检测）
       // 更宽松且合理的边界检查
-      const groundBoundary = currentConfig.canvasHeight - newState.baoniao.size; // 正常边界
+      const groundBoundary = currentConfig.canvasHeight - newState.bird.size; // 正常边界
       const ceilingBoundary = 0;
-
-      const groundCollision = newState.baoniao.y > groundBoundary;
-      const ceilingCollision = newState.baoniao.y < ceilingBoundary;
-
+      
+      const groundCollision = newState.bird.y > groundBoundary;
+      const ceilingCollision = newState.bird.y < ceilingBoundary;
+      
       // 详细的边界检测调试信息
       if ((currentTime - gameStartTime) % 1000 < 16) { // 每秒打印一次详细信息
         console.log('[DEBUG] Boundary Check:', {
@@ -733,9 +733,9 @@ export const useGameState = () => {
           gameStartTime,
           timeElapsed: currentTime - gameStartTime,
           isInGracePeriod,
-          baoniaoY: newState.baoniao.y,
-          baoniaoVelocity: newState.baoniao.velocity,
-          baoniaoSize: newState.baoniao.size,
+          birdY: newState.bird.y,
+          birdVelocity: newState.bird.velocity,
+          birdSize: newState.bird.size,
           canvasHeight: currentConfig.canvasHeight,
           groundBoundary,
           ceilingBoundary,
@@ -744,15 +744,15 @@ export const useGameState = () => {
           invincible: newState.powerUpEffects.invincible
         });
       }
-
+      
       // 只在非缓冲期、非无敌状态且确实严重越界时才结束游戏
-      const shouldEndGame = !newState.powerUpEffects.invincible && !isInGracePeriod &&
-                            (newState.baoniao.y > (groundBoundary + 20) || newState.baoniao.y < (ceilingBoundary - 20));
-
+      const shouldEndGame = !newState.powerUpEffects.invincible && !isInGracePeriod && 
+                            (newState.bird.y > (groundBoundary + 20) || newState.bird.y < (ceilingBoundary - 20));
+      
       if (shouldEndGame) {
         console.log('[DEBUG] Game Over - Boundary collision confirmed:', {
-          reason: newState.baoniao.y > (groundBoundary + 20) ? 'Ground collision' : 'Ceiling collision',
-          baoniaoY: newState.baoniao.y,
+          reason: newState.bird.y > (groundBoundary + 20) ? 'Ground collision' : 'Ceiling collision',
+          birdY: newState.bird.y,
           groundLimit: groundBoundary + 20,
           ceilingLimit: ceilingBoundary - 20
         });
@@ -854,7 +854,7 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
       // 更新金币道具位置和磁铁效果
       newState.coinInstances = updateCoinInstances(
         prev.coinInstances,
-        newState.baoniao,
+        newState.bird,
         newState.powerUpEffects.magnetActive,
         currentTime - (lastPipeTimeRef.current || currentTime),
         effectiveConfig.pipeSpeed
@@ -865,7 +865,7 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
       
       // 检查道具碰撞
       for (const powerUp of newState.powerUps) {
-        if (!powerUp.collected && checkPowerUpCollision(newState.baoniao, powerUp)) {
+        if (!powerUp.collected && checkPowerUpCollision(newState.bird, powerUp)) {
           // 标记道具为已收集
           powerUp.collected = true;
           
@@ -902,7 +902,7 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
       
       // 检查金币道具碰撞
       for (const coin of newState.coinInstances) {
-        if (!coin.collected && checkCoinCollision(newState.baoniao, coin)) {
+        if (!coin.collected && checkCoinCollision(newState.bird, coin)) {
           // 标记金币为已收集
           coin.collected = true;
           
@@ -932,17 +932,17 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
       for (const pipe of newState.pipes) {
         // 更精确的管道碰撞检测（添加容错边距）
         const collisionMargin = 2; // 像素容错边距
-        const pipeCollision = (newState.baoniao.x + newState.baoniao.size - collisionMargin) > pipe.x &&
-            (newState.baoniao.x + collisionMargin) < (pipe.x + pipe.width) &&
-            ((newState.baoniao.y + collisionMargin) < pipe.topHeight ||
-             (newState.baoniao.y + newState.baoniao.size - collisionMargin) > pipe.bottomY);
-
+        const pipeCollision = (newState.bird.x + newState.bird.size - collisionMargin) > pipe.x &&
+            (newState.bird.x + collisionMargin) < (pipe.x + pipe.width) &&
+            ((newState.bird.y + collisionMargin) < pipe.topHeight ||
+             (newState.bird.y + newState.bird.size - collisionMargin) > pipe.bottomY);
+        
         // 只有在非缓冲期、非无敌状态且确实发生精确碰撞时才结束游戏
         if (!newState.powerUpEffects.invincible && !isInGracePeriod && pipeCollision) {
           console.log('[DEBUG] Game Over triggered by pipe collision:', {
-            baoniaoX: newState.baoniao.x,
-            baoniaoY: newState.baoniao.y,
-            baoniaoSize: newState.baoniao.size,
+            birdX: newState.bird.x,
+            birdY: newState.bird.y,
+            birdSize: newState.bird.size,
             pipeX: pipe.x,
             pipeWidth: pipe.width,
             pipeTopHeight: pipe.topHeight,
@@ -957,7 +957,7 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
         }
 
         // 检查是否通过管道并计算奖励
-        if (!pipe.passed && newState.baoniao.x > pipe.x + pipe.width) {
+        if (!pipe.passed && newState.bird.x > pipe.x + pipe.width) {
           pipe.passed = true;
           newState.score += 1;
           
@@ -1056,31 +1056,12 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
     });
   }, [gameOver, currentConfig]);
 
-  // 特效更新循环 - 性能优化
+  // 特效更新循环
   useEffect(() => {
-    if (!gameState.effectsEnabled) {
-      // 如果特效被禁用，清空特效但不更新
-      setPowerUpVisuals({
-        collectionEffects: [],
-        activeEffects: [],
-        screenEffects: [],
-        particles: []
-      });
-      return;
-    }
-
     const updateEffects = () => {
       setPowerUpVisuals(prev => {
         const currentTime = Date.now();
-
-        // 优化：只在有特效时才更新
-        const hasEffects = prev.collectionEffects.length > 0 ||
-                          prev.activeEffects.length > 0 ||
-                          prev.screenEffects.length > 0 ||
-                          prev.particles.length > 0;
-
-        if (!hasEffects) return prev;
-
+        
         return {
           collectionEffects: updateVisualEffects(prev.collectionEffects, currentTime),
           activeEffects: updateVisualEffects(prev.activeEffects, currentTime),
@@ -1089,40 +1070,21 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
         };
       });
     };
+    
+    const effectsInterval = setInterval(updateEffects, 16); // 60 FPS
+    
+    return () => clearInterval(effectsInterval);
+  }, []);
 
-    // 使用 requestAnimationFrame 替代 setInterval 以获得更好的性能
-    let animationFrameId: number;
-    const effectsLoop = () => {
-      updateEffects();
-      animationFrameId = requestAnimationFrame(effectsLoop);
-    };
-    animationFrameId = requestAnimationFrame(effectsLoop);
-
-    return () => {
-      if (animationFrameId) {
-        cancelAnimationFrame(animationFrameId);
-      }
-    };
-  }, [gameState.effectsEnabled]);
-
-  // 游戏循环 - 性能优化
+  // 游戏循环
   useEffect(() => {
-    if (gameState.status !== 'playing') return;
-
-    let lastFrameTime = 0;
-    const targetFPS = 60;
-    const frameInterval = 1000 / targetFPS;
-
-    const gameLoop = (timestamp: number) => {
-      // 帧率控制，避免过度渲染
-      if (timestamp - lastFrameTime >= frameInterval) {
+    if (gameState.status === 'playing') {
+      const gameLoop = () => {
         updateGame();
-        lastFrameTime = timestamp;
-      }
+        animationFrameRef.current = requestAnimationFrame(gameLoop);
+      };
       animationFrameRef.current = requestAnimationFrame(gameLoop);
-    };
-
-    animationFrameRef.current = requestAnimationFrame(gameLoop);
+    }
 
     return () => {
       if (animationFrameRef.current) {

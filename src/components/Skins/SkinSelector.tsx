@@ -1,12 +1,12 @@
 import React, { useState, useMemo } from 'react';
-import { BaoniaoSkin } from '../../types/game';
+import { BirdSkin } from '../../types/game';
 import { cn } from '../../lib/utils';
 import { RARITY_CONFIG } from '../../utils/skinSystem';
 import SkinCard from './SkinCard';
 import CoinDisplay from '../CoinSystem/CoinDisplay';
 
 interface SkinSelectorProps {
-  skins: BaoniaoSkin[];
+  skins: BirdSkin[];
   currentSkinId: string;
   coins: number;
   onSkinSelect: (skinId: string) => void;
@@ -66,7 +66,7 @@ const SkinSelector: React.FC<SkinSelectorProps> = ({
     return { owned, total, rarityCount };
   }, [skins]);
   
-  const handlePurchase = async (skin: BaoniaoSkin) => {
+  const handlePurchase = async (skin: BirdSkin) => {
     if (purchaseLoading || skin.owned) return;
     
     setPurchaseLoading(skin.id);

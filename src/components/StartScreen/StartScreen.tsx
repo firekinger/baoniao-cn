@@ -4,13 +4,13 @@ import CoinDisplay from '../CoinSystem/CoinDisplay';
 import CoinRewardAnimation from '../CoinSystem/CoinRewardAnimation';
 import SkinPreview from '../Skins/SkinPreview';
 import ParticleRenderer from '../Effects/ParticleRenderer';
-import { CoinData, BaoniaoSkin, CoinReward, Particle } from '../../types/game';
-import { BAONIAO_SKINS } from '../../utils/skinSystem';
+import { CoinData, BirdSkin, CoinReward, Particle } from '../../types/game';
+import { BIRD_SKINS } from '../../utils/skinSystem';
 
 interface StartScreenProps {
   playerName: string;
   coinData: CoinData;
-  currentSkin: BaoniaoSkin;
+  currentSkin: BirdSkin;
   coinRewards?: CoinReward[];
   onPlayerNameChange: (name: string) => void;
   onStartGame: () => void;
@@ -20,19 +20,19 @@ interface StartScreenProps {
   onRemoveCoinReward?: (id: string) => void;
 }
 
-// 简单的HTML/CSS宝鸟组件 - 专为右上角显示设计
-interface SimpleBaoniaoPreviewProps {
-  skin: BaoniaoSkin;
+// 简单的HTML/CSS小鸟组件 - 专为右上角显示设计
+interface SimpleBirdPreviewProps {
+  skin: BirdSkin;
   className?: string;
 }
 
-const SimpleBaoniaoPreview: React.FC<SimpleBaoniaoPreviewProps> = ({ skin, className }) => {
+const SimpleBirdPreview: React.FC<SimpleBirdPreviewProps> = ({ skin, className }) => {
   return (
     <div className={cn(
       "relative w-12 h-12 flex items-center justify-center",
       className
     )}>
-      {/* 宝鸟身体 */}
+      {/* 小鸟身体 */}
       <div 
         className="absolute inset-0 rounded-full animate-bounce-gentle shadow-lg"
         style={{
@@ -43,7 +43,7 @@ const SimpleBaoniaoPreview: React.FC<SimpleBaoniaoPreviewProps> = ({ skin, class
         }}
       />
       
-      {/* 宝鸟翅膀 */}
+      {/* 小鸟翅膀 */}
       <div 
         className="absolute top-2 left-1 w-6 h-3 rounded-full animate-wing-flap"
         style={{
@@ -52,12 +52,12 @@ const SimpleBaoniaoPreview: React.FC<SimpleBaoniaoPreviewProps> = ({ skin, class
         }}
       />
       
-      {/* 宝鸟眼睛 */}
+      {/* 小鸟眼睛 */}
       <div className="absolute top-2 right-1 w-3 h-3 bg-white rounded-full border border-gray-300">
         <div className="absolute top-0.5 left-0.5 w-1.5 h-1.5 bg-black rounded-full" />
       </div>
       
-      {/* 宝鸟嘴巴 */}
+      {/* 小鸟嘴巴 */}
       <div 
         className="absolute top-3 right-0 w-2 h-1 rounded-r-md"
         style={{
@@ -89,10 +89,10 @@ const SimpleBaoniaoPreview: React.FC<SimpleBaoniaoPreviewProps> = ({ skin, class
   );
 };
 
-// 飞行宝鸟组件接口
+// 飞行小鸟组件接口
 interface FlyingBirdProps {
   className?: string;
-  skin: BaoniaoSkin;
+  skin: BirdSkin;
   animationDelay?: number;
   size?: 'sm' | 'md' | 'lg';
 }
@@ -410,7 +410,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
 
   // 获取不同的皮肤用于展示
   const displaySkins = useMemo(() => {
-    const allSkins = Object.values(BAONIAO_SKINS);
+    const allSkins = Object.values(BIRD_SKINS);
     // 选择多样化的皮肤进行展示
     return [
       allSkins.find(skin => skin.id === 'classic') || allSkins[0],
@@ -419,7 +419,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       allSkins.find(skin => skin.id === 'gold') || allSkins[3],
       allSkins.find(skin => skin.id === 'lightning_bird') || allSkins[4],
       allSkins.find(skin => skin.id === 'flame_bird') || allSkins[5],
-    ].filter(Boolean) as BaoniaoSkin[];
+    ].filter(Boolean) as BirdSkin[];
   }, []);
 
   // 粒子效果生成
@@ -547,7 +547,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       <Bubble className="bottom-16 left-1/4" size={16} delay={1000} />
       <Bubble className="bottom-12 right-16" size={10} delay={2000} />
       
-      {/* 飞行的宝鸟们 - 减少数量 */}
+      {/* 飞行的小鸟们 - 减少数量 */}
       <FlyingBird 
         className="top-20 -left-16" 
         skin={displaySkins[0]} 
@@ -585,7 +585,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
             <div className="font-bold text-gray-800 text-sm">{currentSkin.name}</div>
           </div>
           <div className="relative bg-orange-50 rounded-lg p-1.5 border border-orange-200">
-            <SimpleBaoniaoPreview 
+            <SimpleBirdPreview 
               skin={currentSkin}
               className="relative z-10"
             />
@@ -597,7 +597,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       <div className="relative z-10 flex flex-col items-center justify-center w-full max-w-lg mx-auto px-6">
         {/* 紧凑的标题区域 */}
         <div className="flex items-center justify-center mb-6 relative">
-          {/* 左侧宝鸟组 */}
+          {/* 左侧小鸟组 */}
           <div className="mr-6 relative">
             <SkinPreview 
               skin={currentSkin}
@@ -649,7 +649,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
             </div>
           </div>
           
-          {/* 右侧宝鸟组 */}
+          {/* 右侧小鸟组 */}
           <div className="ml-6 relative">
             <SkinPreview 
               skin={displaySkins[5] || currentSkin}
@@ -729,7 +729,7 @@ const StartScreen: React.FC<StartScreenProps> = ({
       
       {/* 开发者标识 - 位置调整 */}
       <div className="absolute bottom-3 right-4 text-xs text-orange-600 opacity-70">
-        <p>Created by Baoniao.cn</p>
+        <p>Created by Baoniao</p>
       </div>
       
       {/* 金币奖励动画 */}

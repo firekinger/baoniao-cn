@@ -1,8 +1,7 @@
 {
-  "name": "baoniao-xianfei",
+  "name": "react_repo",
   "private": true,
-  "version": "1.0.0",
-  "description": "宝鸟先飞 - 一款基于 React 的现代化网页游戏",
+  "version": "0.0.0",
   "type": "module",
   "scripts": {
     "dev": "yes | pnpm install && vite",
@@ -40,7 +39,6 @@
     "@radix-ui/react-toggle": "^1.1.1",
     "@radix-ui/react-toggle-group": "^1.1.1",
     "@radix-ui/react-tooltip": "^1.1.6",
-    "@vercel/analytics": "^1.5.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "1.0.0",
@@ -76,7 +74,6 @@
     "globals": "^15.12.0",
     "postcss": "8.4.49",
     "tailwindcss": "v3.4.16",
-    "terser": "^5.44.1",
     "typescript": "~5.6.2",
     "typescript-eslint": "^8.15.0",
     "vite": "^6.0.1",

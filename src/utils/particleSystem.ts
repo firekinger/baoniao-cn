@@ -1,46 +1,14 @@
 import { Particle, VisualEffect, PowerUpType } from '../types/game';
 
-// 优化：使用对象池减少内存分配
-const particlePool: Particle[] = [];
-const effectPool: VisualEffect[] = [];
-
-// 生成唯一ID - 优化减少字符串操作
+// 生成唯一ID
 let particleIdCounter = 0;
 export const generateParticleId = (): string => {
-  const id = `p_${Date.now()}_${++particleIdCounter}`;
-  if (particleIdCounter > 1000000) particleIdCounter = 0; // 防止溢出
-  return id;
+  return `particle_${Date.now()}_${++particleIdCounter}`;
 };
 
 let effectIdCounter = 0;
 export const generateEffectId = (): string => {
-  const id = `e_${Date.now()}_${++effectIdCounter}`;
-  if (effectIdCounter > 1000000) effectIdCounter = 0; // 防止溢出
-  return id;
-};
-
-// 对象池：获取粒子对象
-const getParticleFromPool = (): Partial<Particle> => {
-  return particlePool.pop() || {};
-};
-
-// 对象池：回收粒子对象
-const returnParticleToPool = (particle: Particle): void => {
-  if (particlePool.length < 100) { // 限制池大小
-    particlePool.push({ ...particle });
-  }
-};
-
-// 对象池：获取特效对象
-const getEffectFromPool = (): Partial<VisualEffect> => {
-  return effectPool.pop() || {};
-};
-
-// 对象池：回收特效对象
-const returnEffectToPool = (effect: VisualEffect): void => {
-  if (effectPool.length < 50) { // 限制池大小
-    effectPool.push({ ...effect });
-  }
+  return `effect_${Date.now()}_${++effectIdCounter}`;
 };
 
 // 道具特效颜色配置
@@ -72,7 +40,7 @@ export const POWER_UP_EFFECT_COLORS = {
   }
 };
 
-// 优化的创建粒子函数 - 使用对象池
+// 创建粒子
 export const createParticle = (
   x: number,
   y: number,
@@ -81,12 +49,10 @@ export const createParticle = (
   size: number = 3,
   life: number = 1000
 ): Particle => {
-  const poolParticle = getParticleFromPool();
   const angle = Math.random() * Math.PI * 2;
   const speed = Math.random() * 4 + 2;
-
+  
   return {
-    ...poolParticle,
     id: generateParticleId(),
     x,
     y,
@@ -100,7 +66,7 @@ export const createParticle = (
     type,
     gravity: type === 'spark' ? 0.1 : 0.05,
     fade: true
-  } as Particle;
+  };
 };
 
 // 创建爆发式粒子效果
@@ -205,51 +171,39 @@ export const createTrailParticles = (
   return particles;
 };
 
-// 优化的粒子状态更新 - 添加内存管理
+// 更新粒子状态
 export const updateParticles = (
   particles: Particle[],
   deltaTime: number = 16
 ): Particle[] => {
-  const activeParticles: Particle[] = [];
-  const dt = deltaTime / 16; // 预计算以避免重复计算
-
-  for (let i = particles.length - 1; i >= 0; i--) {
-    const particle = particles[i];
-
-    // 更新位置
-    particle.x += particle.velocityX * dt;
-    particle.y += particle.velocityY * dt;
-
-    // 应用重力
-    if (particle.gravity) {
-      particle.velocityY += particle.gravity * dt;
-    }
-
-    // 更新生命周期
-    particle.life -= deltaTime;
-
-    // 快速死亡检查
-    if (particle.life <= 0 || particle.alpha <= 0.01) {
-      // 回收到对象池
-      returnParticleToPool(particle);
-      continue;
-    }
-
-    // 更新透明度（渐隐效果）
-    if (particle.fade) {
-      particle.alpha = Math.max(0, particle.life / particle.maxLife);
-    }
-
-    // 尾迹粒子的特殊处理
-    if (particle.type === 'trail') {
-      particle.velocityX *= 0.98; // 减速
-      particle.velocityY *= 0.98;
-    }
-
-    activeParticles.push(particle);
-  }
-
-  return activeParticles;
+  return particles
+    .map(particle => {
+      // 更新位置
+      particle.x += particle.velocityX * (deltaTime / 16);
+      particle.y += particle.velocityY * (deltaTime / 16);
+      
+      // 应用重力
+      if (particle.gravity) {
+        particle.velocityY += particle.gravity * (deltaTime / 16);
+      }
+      
+      // 更新生命周期
+      particle.life -= deltaTime;
+      
+      // 更新透明度（渐隐效果）
+      if (particle.fade) {
+        particle.alpha = Math.max(0, particle.life / particle.maxLife);
+      }
+      
+      // 尾迹粒子的特殊处理
+      if (particle.type === 'trail') {
+        particle.velocityX *= 0.98; // 减速
+        particle.velocityY *= 0.98;
+      }
+      
+      return particle;
+    })
+    .filter(particle => particle.life > 0 && particle.alpha > 0.01);
 };
 
 // 创建全屏闪光效果

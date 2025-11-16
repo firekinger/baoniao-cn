@@ -270,7 +270,7 @@ const Settings: React.FC<SettingsProps> = ({
               </div>
               <div className="flex justify-between">
                 <span>开发者:</span>
-                <span className="font-semibold">Baoniao.cn</span>
+                <span className="font-semibold">MiniMax Agent</span>
               </div>
             </div>
           </div>

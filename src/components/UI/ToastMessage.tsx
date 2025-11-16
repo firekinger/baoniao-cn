@@ -1,12 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { cn } from '../../lib/utils';
 import SkinPreview from '../Skins/SkinPreview';
-import { BaoniaoSkin } from '../../types/game';
+import { BirdSkin } from '../../types/game';
 
 interface ToastMessageProps {
   type: 'success' | 'error' | 'info';
   message: string;
-  skin?: BaoniaoSkin;
+  skin?: BirdSkin;
   isVisible: boolean;
   onClose: () => void;
   autoClose?: boolean;

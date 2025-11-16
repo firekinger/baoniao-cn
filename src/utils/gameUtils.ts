@@ -7,7 +7,7 @@ export const addToLeaderboard = (
   difficulty: 'easy' | 'normal' | 'hard' | 'expert'
 ): void => {
   try {
-    const existingData = localStorage.getItem('baoniaoLeaderboard');
+    const existingData = localStorage.getItem('flappyBirdLeaderboard');
     const leaderboard: LeaderboardEntry[] = existingData ? JSON.parse(existingData) : [];
     
     const newEntry: LeaderboardEntry = {
@@ -18,7 +18,7 @@ export const addToLeaderboard = (
     };
     
     leaderboard.push(newEntry);
-    localStorage.setItem('baoniaoLeaderboard', JSON.stringify(leaderboard));
+    localStorage.setItem('flappyBirdLeaderboard', JSON.stringify(leaderboard));
   } catch (error) {
     console.error('Error saving to leaderboard:', error);
   }
@@ -26,7 +26,7 @@ export const addToLeaderboard = (
 
 export const getLeaderboard = (): LeaderboardEntry[] => {
   try {
-    const data = localStorage.getItem('baoniaoLeaderboard');
+    const data = localStorage.getItem('flappyBirdLeaderboard');
     return data ? JSON.parse(data) : [];
   } catch (error) {
     console.error('Error loading leaderboard:', error);
@@ -36,7 +36,7 @@ export const getLeaderboard = (): LeaderboardEntry[] => {
 
 export const clearLeaderboard = (): void => {
   try {
-    localStorage.removeItem('baoniaoLeaderboard');
+    localStorage.removeItem('flappyBirdLeaderboard');
   } catch (error) {
     console.error('Error clearing leaderboard:', error);
   }
@@ -50,7 +50,7 @@ export const saveSettings = (settings: {
   effectsEnabled: boolean;
 }): void => {
   try {
-    localStorage.setItem('baoniaoSettings', JSON.stringify(settings));
+    localStorage.setItem('flappyBirdSettings', JSON.stringify(settings));
   } catch (error) {
     console.error('Error saving settings:', error);
   }
@@ -63,7 +63,7 @@ export const loadSettings = (): {
   effectsEnabled: boolean;
 } => {
   try {
-    const data = localStorage.getItem('baoniaoSettings');
+    const data = localStorage.getItem('flappyBirdSettings');
     return data ? JSON.parse(data) : {
       difficulty: 'normal',
       soundEnabled: true,

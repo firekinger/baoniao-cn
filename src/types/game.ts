@@ -1,4 +1,4 @@
-export interface Baoniao {
+export interface Bird {
   x: number;
   y: number;
   velocity: number;
@@ -43,7 +43,7 @@ export interface GameState {
   status: 'start' | 'playing' | 'paused' | 'gameOver' | 'leaderboard' | 'settings' | 'shop';
   score: number;
   highScore: number;
-  baoniao: Baoniao;
+  bird: Bird;
   pipes: Pipe[];
   playerName: string;
   difficulty: 'easy' | 'normal' | 'hard' | 'expert';
@@ -58,7 +58,7 @@ export interface GameState {
   showCoinAnimation: boolean;
   // 皮肤系统相关
   skinData: SkinData;
-  currentSkin: BaoniaoSkin;
+  currentSkin: BirdSkin;
   // 技能系统相关
   skillState: SkillState;
   // 道具系统相关
@@ -127,7 +127,7 @@ export interface SkinSkill {
   effectValue?: number;    // 效果数值（如传送距离）
 }
 
-export interface BaoniaoSkin {
+export interface BirdSkin {
   id: string;              // 唯一标识符
   name: string;            // 皮肤名称
   description: string;     // 皮肤描述

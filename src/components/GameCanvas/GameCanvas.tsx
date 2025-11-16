@@ -1,5 +1,5 @@
-import React, { useRef, useEffect, useCallback, useMemo } from 'react';
-import { GameState, GameConfig, BaoniaoSkin, PowerUpInstance, CoinInstance } from '../../types/game';
+import React, { useRef, useEffect } from 'react';
+import { GameState, GameConfig, BirdSkin, PowerUpInstance, CoinInstance } from '../../types/game';
 import { RARITY_COLORS } from '../../utils/powerUpSystem';
 
 interface GameCanvasProps {
@@ -10,82 +10,44 @@ interface GameCanvasProps {
 
 const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
-  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
-  const backgroundCacheRef = useRef<ImageData | null>(null);
 
-  // 创建离屏Canvas用于背景缓存
-  useMemo(() => {
-    const offscreenCanvas = document.createElement('canvas');
-    offscreenCanvas.width = config.canvasWidth;
-    offscreenCanvas.height = config.canvasHeight;
-    offscreenCanvasRef.current = offscreenCanvas;
-
-    // 预渲染背景
-    const offscreenCtx = offscreenCanvas.getContext('2d');
-    if (offscreenCtx) {
-      // 绘制背景渐变
-      const gradient = offscreenCtx.createLinearGradient(0, 0, 0, config.canvasHeight);
-      gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(0.7, '#98D8E8');
-      gradient.addColorStop(1, '#B0E0E6');
-      offscreenCtx.fillStyle = gradient;
-      offscreenCtx.fillRect(0, 0, config.canvasWidth, config.canvasHeight);
-
-      // 绘制云彩
-      drawClouds(offscreenCtx, config.canvasWidth, config.canvasHeight);
-
-      backgroundCacheRef.current = offscreenCtx.getImageData(0, 0, config.canvasWidth, config.canvasHeight);
-    }
-  }, [config.canvasWidth, config.canvasHeight]);
-
-  // 优化的绘制函数
-  const renderGame = useCallback(() => {
+  // 绘制游戏场景
+  useEffect(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 设置画布尺寸（只在需要时）
-    if (canvas.width !== config.canvasWidth || canvas.height !== config.canvasHeight) {
-      canvas.width = config.canvasWidth;
-      canvas.height = config.canvasHeight;
-    }
+    // 设置画布尺寸
+    canvas.width = config.canvasWidth;
+    canvas.height = config.canvasHeight;
 
-    // 启用图像平滑以获得更好的性能
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
+    // 清空画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    // 使用缓存的背景
-    if (backgroundCacheRef.current) {
-      ctx.putImageData(backgroundCacheRef.current, 0, 0);
-    } else {
-      // 备用背景渲染
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(1, '#B0E0E6');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
+    // 绘制背景
+    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+    gradient.addColorStop(0, '#87CEEB'); // 天空蓝
+    gradient.addColorStop(0.7, '#98D8E8'); // 淡蓝
+    gradient.addColorStop(1, '#B0E0E6'); // 粉蓝
+    ctx.fillStyle = gradient;
+    ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // 批量绘制管道
-    ctx.save();
-    if (gameState.pipes.length > 0) {
-      gameState.pipes.forEach(pipe => drawPipe(ctx, pipe));
-    }
-    ctx.restore();
+    // 绘制云彩
+    drawClouds(ctx, canvas.width, canvas.height);
 
-    // 批量绘制金币道具
-    ctx.save();
-    if (gameState.coinInstances.length > 0) {
-      gameState.coinInstances.forEach(coinInstance => {
-        if (!coinInstance.collected) {
-          drawCoinInstance(ctx, coinInstance);
-        }
-      });
-    }
-    ctx.restore();
+    // 绘制管道
+    gameState.pipes.forEach(pipe => {
+      drawPipe(ctx, pipe);
+    });
+    
+    // 绘制金币道具
+    gameState.coinInstances.forEach(coinInstance => {
+      if (!coinInstance.collected) {
+        drawCoinInstance(ctx, coinInstance);
+      }
+    });
     
     // 绘制道具
     gameState.powerUps.forEach(powerUp => {
@@ -94,19 +56,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       }
     });
 
-    // 批量绘制道具
-    ctx.save();
-    if (gameState.powerUps.length > 0) {
-      gameState.powerUps.forEach(powerUp => {
-        if (!powerUp.collected) {
-          drawPowerUp(ctx, powerUp);
-        }
-      });
-    }
-    ctx.restore();
-
-    // 绘制宝鸟（支持皮肤系统和道具效果）
-    drawBaoniao(ctx, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects);
+    // 绘制小鸟（支持皮肤系统和道具效果）
+    drawBird(ctx, gameState.bird, gameState.currentSkin, gameState.powerUpEffects);
 
     // 绘制地面
     drawGround(ctx, canvas.width, canvas.height);
@@ -120,7 +71,8 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     } else if (gameState.status === 'gameOver') {
       drawGameOverOverlay(ctx, gameState.score, gameState.highScore, canvas.width, canvas.height);
     }
-  }, [gameState, config, backgroundCacheRef.current]);
+
+  }, [gameState, config]);
 
   // 绘制云彩
   const drawClouds = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -415,12 +367,12 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
   };
   
   // 绘制小鸟（支持皮肤系统和道具效果）
-  const drawBaoniao = (ctx: CanvasRenderingContext2D, baoniao: any, skin: BaoniaoSkin, powerUpEffects: any) => {
-    const centerX = baoniao.x + baoniao.size / 2;
-    const centerY = baoniao.y + baoniao.size / 2;
+  const drawBird = (ctx: CanvasRenderingContext2D, bird: any, skin: BirdSkin, powerUpEffects: any) => {
+    const centerX = bird.x + bird.size / 2;
+    const centerY = bird.y + bird.size / 2;
     
     // 根据速度计算旋转角度
-    const rotation = Math.min(Math.max(baoniao.velocity * 0.05, -0.5), 0.5);
+    const rotation = Math.min(Math.max(bird.velocity * 0.05, -0.5), 0.5);
     
     ctx.save();
     ctx.translate(centerX, centerY);
@@ -444,7 +396,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       ctx.strokeStyle = '#FFD700';
       ctx.lineWidth = 4;
       ctx.beginPath();
-      ctx.arc(0, 0, baoniao.size / 2 + 8, 0, Math.PI * 2);
+      ctx.arc(0, 0, bird.size / 2 + 8, 0, Math.PI * 2);
       ctx.stroke();
       
       // 中层光晕
@@ -452,7 +404,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       ctx.strokeStyle = '#FFFF00';
       ctx.lineWidth = 2;
       ctx.beginPath();
-      ctx.arc(0, 0, baoniao.size / 2 + 12, 0, Math.PI * 2);
+      ctx.arc(0, 0, bird.size / 2 + 12, 0, Math.PI * 2);
       ctx.stroke();
       
       ctx.restore();
@@ -464,7 +416,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       const time = Date.now() * 0.02;
       
       for (let i = 0; i < 5; i++) {
-        const trailX = -baoniao.size / 2 - i * 3;
+        const trailX = -bird.size / 2 - i * 3;
         const trailY = Math.sin(time + i * 0.5) * 2;
         const opacity = (5 - i) / 5 * 0.6;
         
@@ -489,7 +441,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       ctx.globalAlpha = 0.1;
       ctx.fillStyle = '#32CD32'; // 绿色
       ctx.beginPath();
-      ctx.arc(0, 0, baoniao.size / 2 + 15, 0, Math.PI * 2);
+      ctx.arc(0, 0, bird.size / 2 + 15, 0, Math.PI * 2);
       ctx.fill();
       ctx.restore();
     }
@@ -497,11 +449,11 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     // 小鸟身体渲染
     if (skin.effects?.gradient && skin.colors.secondary) {
       // 渐变效果
-      const baoniaoGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, baoniao.size);
-      baoniaoGradient.addColorStop(0, skin.colors.primary);
-      baoniaoGradient.addColorStop(0.7, skin.colors.secondary);
-      baoniaoGradient.addColorStop(1, skin.colors.accent || skin.colors.secondary);
-      ctx.fillStyle = baoniaoGradient;
+      const birdGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, bird.size);
+      birdGradient.addColorStop(0, skin.colors.primary);
+      birdGradient.addColorStop(0.7, skin.colors.secondary);
+      birdGradient.addColorStop(1, skin.colors.accent || skin.colors.secondary);
+      ctx.fillStyle = birdGradient;
     } else {
       // 纯色效果
       ctx.fillStyle = skin.colors.primary;
@@ -509,7 +461,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     
     // 特殊皮肤渲染：彩虹效果
     if (skin.id === 'rainbow') {
-      const rainbowGradient = ctx.createLinearGradient(-baoniao.size/2, -baoniao.size/2, baoniao.size/2, baoniao.size/2);
+      const rainbowGradient = ctx.createLinearGradient(-bird.size/2, -bird.size/2, bird.size/2, bird.size/2);
       const time = Date.now() * 0.002;
       rainbowGradient.addColorStop(0, `hsl(${(time * 50) % 360}, 70%, 60%)`);
       rainbowGradient.addColorStop(0.33, `hsl(${(time * 50 + 120) % 360}, 70%, 60%)`);
@@ -520,7 +472,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     
     // 特殊皮肤渲染：火焰效果
     if (skin.id === 'fire') {
-      const fireGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, baoniao.size);
+      const fireGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, bird.size);
       const fireIntensity = Math.sin(Date.now() * 0.01) * 0.3 + 0.7;
       fireGradient.addColorStop(0, `rgba(255, 255, 0, ${fireIntensity})`);
       fireGradient.addColorStop(0.3, skin.colors.primary);
@@ -531,7 +483,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     
     // 特殊皮肤渲染：冰霜效果
     if (skin.id === 'ice') {
-      const iceGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, baoniao.size);
+      const iceGradient = ctx.createRadialGradient(0, 0, 0, 0, 0, bird.size);
       const shimmer = Math.sin(Date.now() * 0.005) * 0.2 + 0.8;
       iceGradient.addColorStop(0, `rgba(255, 255, 255, ${shimmer})`);
       iceGradient.addColorStop(0.3, skin.colors.primary);
@@ -548,14 +500,14 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       
       // 绘制小鸟身体
       ctx.beginPath();
-      ctx.arc(0, 0, baoniao.size / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, bird.size / 2, 0, Math.PI * 2);
       ctx.fill();
       
       ctx.restore();
     } else {
       // 绘制小鸟身体
       ctx.beginPath();
-      ctx.arc(0, 0, baoniao.size / 2, 0, Math.PI * 2);
+      ctx.arc(0, 0, bird.size / 2, 0, Math.PI * 2);
       ctx.fill();
     }
     
@@ -569,7 +521,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     if (skin.id === 'fire') {
       // 火焰翅膀
       const wingTime = Date.now() * 0.02;
-      const wingGradient = ctx.createLinearGradient(-baoniao.size/3, -baoniao.size/6, baoniao.size/3, baoniao.size/6);
+      const wingGradient = ctx.createLinearGradient(-bird.size/3, -bird.size/6, bird.size/3, bird.size/6);
       wingGradient.addColorStop(0, '#ff4500');
       wingGradient.addColorStop(0.5, `rgba(255, 69, 0, ${Math.sin(wingTime) * 0.3 + 0.7})`);
       wingGradient.addColorStop(1, '#dc143c');
@@ -581,13 +533,13 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     }
     
     ctx.beginPath();
-    ctx.ellipse(-baoniao.size / 4, 0, baoniao.size / 3, baoniao.size / 6, 0, 0, Math.PI * 2);
+    ctx.ellipse(-bird.size / 4, 0, bird.size / 3, bird.size / 6, 0, 0, Math.PI * 2);
     ctx.fill();
     
     // 绘制小鸟眼睛
     ctx.fillStyle = skin.colors.eye || 'white';
     ctx.beginPath();
-    ctx.arc(baoniao.size / 6, -baoniao.size / 6, baoniao.size / 8, 0, Math.PI * 2);
+    ctx.arc(bird.size / 6, -bird.size / 6, bird.size / 8, 0, Math.PI * 2);
     ctx.fill();
     
     // 特殊皮肤眼睛效果
@@ -600,15 +552,15 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     }
     
     ctx.beginPath();
-    ctx.arc(baoniao.size / 6 + 2, -baoniao.size / 6, baoniao.size / 16, 0, Math.PI * 2);
+    ctx.arc(bird.size / 6 + 2, -bird.size / 6, bird.size / 16, 0, Math.PI * 2);
     ctx.fill();
     
     // 绘制小鸟嘴巴
     ctx.fillStyle = skin.colors.accent || '#ea580c';
     ctx.beginPath();
-    ctx.moveTo(baoniao.size / 2, 0);
-    ctx.lineTo(baoniao.size / 2 + 8, -3);
-    ctx.lineTo(baoniao.size / 2 + 8, 3);
+    ctx.moveTo(bird.size / 2, 0);
+    ctx.lineTo(bird.size / 2 + 8, -3);
+    ctx.lineTo(bird.size / 2 + 8, 3);
     ctx.closePath();
     ctx.fill();
     
@@ -616,7 +568,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     
     // 特效渲染：闪烁效果
     if (skin.effects?.sparkle) {
-      drawSparkleEffect(ctx, centerX, centerY, baoniao.size);
+      drawSparkleEffect(ctx, centerX, centerY, bird.size);
     }
     
     // 特效渲染：粒子效果
@@ -660,7 +612,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
   };
   
   // 粒子效果
-  const drawParticleEffect = (ctx: CanvasRenderingContext2D, x: number, y: number, skin: BaoniaoSkin) => {
+  const drawParticleEffect = (ctx: CanvasRenderingContext2D, x: number, y: number, skin: BirdSkin) => {
     const time = Date.now() * 0.003;
     const particles = 8;
     
@@ -775,174 +727,30 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     ctx.fillText('按 R 键重新开始', width / 2, height / 2 + 60);
   };
 
-  // 优化的输入处理 - 添加防抖和多输入支持
-  const jumpTimeoutRef = useRef<NodeJS.Timeout>();
-  const lastJumpTimeRef = useRef<number>(0);
-
-  const handleJump = useCallback((event?: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
-    event?.preventDefault();
-
-    const currentTime = Date.now();
-    const timeSinceLastJump = currentTime - lastJumpTimeRef.current;
-
-    // 限制最小跳跃间隔（50ms）防止意外连击
-    if (timeSinceLastJump < 50) {
-      return;
-    }
-
-    // 清除之前的超时
-    if (jumpTimeoutRef.current) {
-      clearTimeout(jumpTimeoutRef.current);
-    }
-
-    // 小延迟确保更好的响应性
-    jumpTimeoutRef.current = setTimeout(() => {
-      onJump();
-      lastJumpTimeRef.current = Date.now();
-    }, 10);
-  }, [onJump]);
-
   // 鼠标点击事件
-  const handleCanvasClick = (event: React.MouseEvent) => {
-    handleJump(event as any);
+  const handleCanvasClick = () => {
+    onJump();
   };
-
-  // 触摸事件处理
-  const handleTouchStart = (event: React.TouchEvent) => {
-    handleJump(event as any);
-  };
-
-  // 键盘事件处理
-  const handleKeyDown = (event: React.KeyboardEvent) => {
-    switch (event.code) {
-      case 'Space':
-      case 'ArrowUp':
-      case 'KeyW': // 添加W键支持
-        event.preventDefault();
-        handleJump(event as any);
-        break;
-    }
-  };
-
-  // 优化的全局键盘监听
-  useEffect(() => {
-    const handleGlobalKeyDown = (event: KeyboardEvent) => {
-      switch (event.code) {
-        case 'Space':
-        case 'ArrowUp':
-        case 'KeyW':
-          if (document.activeElement === canvasRef.current) {
-            event.preventDefault();
-            handleJump(event as any);
-          }
-          break;
-      }
-    };
-
-    window.addEventListener('keydown', handleGlobalKeyDown);
-    return () => {
-      window.removeEventListener('keydown', handleGlobalKeyDown);
-      if (jumpTimeoutRef.current) {
-        clearTimeout(jumpTimeoutRef.current);
-      }
-    };
-  }, [handleJump]);
-
-  // 性能优化的渲染函数
-  const shouldRender = gameState.pipes.length > 0 ||
-                       gameState.coinInstances.length > 0 ||
-                       gameState.powerUps.length > 0 ||
-                       gameState.baoniao ||
-                       gameState.currentSkin ||
-                       gameState.status !== 'start';
-
-  useEffect(() => {
-    if (!shouldRender) return;
-
-    const canvas = canvasRef.current;
-    if (!canvas) return;
-
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // 设置画布尺寸（只在需要时）
-    if (canvas.width !== config.canvasWidth || canvas.height !== config.canvasHeight) {
-      canvas.width = config.canvasWidth;
-      canvas.height = config.canvasHeight;
-    }
-
-    // 启用图像平滑以获得更好的性能
-    ctx.imageSmoothingEnabled = true;
-    ctx.imageSmoothingQuality = 'high';
-
-    // 使用缓存的背景
-    if (backgroundCacheRef.current) {
-      ctx.putImageData(backgroundCacheRef.current, 0, 0);
-    } else {
-      // 备用背景渲染
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-      gradient.addColorStop(0, '#87CEEB');
-      gradient.addColorStop(1, '#B0E0E6');
-      ctx.fillStyle = gradient;
-      ctx.fillRect(0, 0, canvas.width, canvas.height);
-    }
-
-    // 绘制管道
-    gameState.pipes.forEach(pipe => {
-      drawPipe(ctx, pipe);
-    });
-
-    // 绘制金币道具
-    gameState.coinInstances.forEach(coinInstance => {
-      if (!coinInstance.collected) {
-        drawCoinInstance(ctx, coinInstance);
-      }
-    });
-
-    // 绘制道具
-    gameState.powerUps.forEach(powerUp => {
-      if (!powerUp.collected) {
-        drawPowerUp(ctx, powerUp);
-      }
-    });
-
-    // 绘制宝鸟
-    drawBaoniao(ctx, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects);
-
-    // 绘制地面
-    drawGround(ctx, canvas.width, canvas.height);
-
-    // 绘制分数
-    drawScore(ctx, gameState.score, canvas.width);
-
-    // 绘制游戏状态提示
-    if (gameState.status === 'paused') {
-      drawPausedOverlay(ctx, canvas.width, canvas.height);
-    } else if (gameState.status === 'gameOver') {
-      drawGameOverOverlay(ctx, gameState.score, gameState.highScore, canvas.width, canvas.height);
-  }
-  }, [gameState.pipes, gameState.coinInstances, gameState.powerUps, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects, gameState.status, gameState.score, gameState.highScore, config.canvasWidth, config.canvasHeight, backgroundCacheRef.current]);
 
   return (
     <canvas
       ref={canvasRef}
-      onMouseDown={handleCanvasClick}
-      onTouchStart={handleTouchStart}
-      onKeyDown={handleKeyDown}
-      className="border-2 border-gray-300 rounded-lg shadow-lg cursor-pointer bg-white transition-transform hover:scale-[1.01] active:scale-[0.99]"
-      style={{
-        maxWidth: '100%',
+      onClick={handleCanvasClick}
+      className="border-2 border-gray-300 rounded-lg shadow-lg cursor-pointer bg-white"
+      style={{ 
+        maxWidth: '100%', 
         height: 'auto',
-        touchAction: 'none', // 防止移动设备上的意外滚动
-        userSelect: 'none',
-        WebkitUserSelect: 'none',
-        WebkitTapHighlightColor: 'transparent',
-        outline: 'none' // 移除焦点轮廓
+        touchAction: 'none' // 防止移动设备上的意外滚动
       }}
-      aria-label="宝鸟先飞游戏画布，点击、触摸或按空格键使宝鸟跳跃"
+      aria-label="游戏画布，点击或按空格键使小鸟跳跃"
       role="button"
       tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.code === 'Space') {
+          e.preventDefault();
+          onJump();
+        }
+      }}
     />
   );
 };

@@ -1,10 +1,10 @@
 import React from 'react';
-import { BaoniaoSkin } from '../../types/game';
+import { BirdSkin } from '../../types/game';
 import SkinSelector from './SkinSelector';
 import SkinPreview from './SkinPreview';
 
 interface SkinsScreenProps {
-  skins: BaoniaoSkin[];
+  skins: BirdSkin[];
   currentSkinId: string;
   coins: number;
   onBack: () => void;
@@ -37,7 +37,7 @@ const SkinsScreen: React.FC<SkinsScreenProps> = ({
             </button>
             
             <div className="bg-white bg-opacity-90 rounded-xl px-6 py-3 shadow-lg">
-              <h1 className="text-2xl font-bold text-gray-800">宝鸟皮肤</h1>
+              <h1 className="text-2xl font-bold text-gray-800">小鸟皮肤</h1>
             </div>
           </div>
           
