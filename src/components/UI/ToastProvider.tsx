@@ -1,10 +1,10 @@
 import React, { createContext, useContext, useState, useCallback } from 'react';
 import ToastMessage from '../UI/ToastMessage';
-import { BirdSkin } from '../../types/game';
+import { BaoniaoSkin } from '../../types/game';
 
 interface ToastContextType {
-  showToast: (message: string, type?: 'success' | 'error' | 'info', skin?: BirdSkin) => void;
-  showPurchaseSuccess: (skin: BirdSkin, message?: string) => void;
+  showToast: (message: string, type?: 'success' | 'error' | 'info', skin?: BaoniaoSkin) => void;
+  showPurchaseSuccess: (skin: BaoniaoSkin, message?: string) => void;
 }
 
 const ToastContext = createContext<ToastContextType | undefined>(undefined);
@@ -21,14 +21,14 @@ interface ToastState {
   id: string;
   message: string;
   type: 'success' | 'error' | 'info';
-  skin?: BirdSkin;
+  skin?: BaoniaoSkin;
   isVisible: boolean;
 }
 
 export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [toasts, setToasts] = useState<ToastState[]>([]);
 
-  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info', skin?: BirdSkin) => {
+  const showToast = useCallback((message: string, type: 'success' | 'error' | 'info' = 'info', skin?: BaoniaoSkin) => {
     const id = Date.now().toString();
     const newToast: ToastState = {
       id,
@@ -41,7 +41,7 @@ export const ToastProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setToasts(prev => [...prev, newToast]);
   }, []);
 
-  const showPurchaseSuccess = useCallback((skin: BirdSkin, message?: string) => {
+  const showPurchaseSuccess = useCallback((skin: BaoniaoSkin, message?: string) => {
     const defaultMessage = `${skin.name} 已成功解锁！现在可以使用这个皮肤了！`;
     showToast(message || defaultMessage, 'success', skin);
   }, [showToast]);

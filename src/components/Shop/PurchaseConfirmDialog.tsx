@@ -1,12 +1,12 @@
 import React from 'react';
-import { BirdSkin } from '../../types/game';
+import { BaoniaoSkin } from '../../types/game';
 import { cn } from '../../lib/utils';
 import SkinPreview from '../Skins/SkinPreview';
 import CoinIcon from '../CoinSystem/CoinIcon';
 import { RARITY_CONFIG } from '../../utils/skinSystem';
 
 interface PurchaseConfirmDialogProps {
-  skin: BirdSkin;
+  skin: BaoniaoSkin;
   coins: number;
   isOpen: boolean;
   onConfirm: () => void;

@@ -1,10 +1,10 @@
 {
   "compilerOptions": {
     "tsBuildInfoFile": "./node_modules/.tmp/tsconfig.app.tsbuildinfo",
-    "target": "ES2020",
+    "target": "ES2022",
     "useDefineForClassFields": true,
     "lib": [
-      "ES2020",
+      "ES2022",
       "DOM",
       "DOM.Iterable"
     ],
@@ -24,19 +24,26 @@
     "moduleDetection": "force",
     "noEmit": true,
     "jsx": "react-jsx",
-    /* Linting */
-    "strict": false,
+    "jsxImportSource": "react",
+    /* Performance optimizations */
+    "incremental": true,
+    "removeComments": false,
+    "sourceMap": true,
+    /* Linting - 平衡严格性和开发效率 */
+    "strict": true,
     "noImplicitAny": false,
     "noUnusedLocals": false,
     "noUnusedParameters": false,
-    "noFallthroughCasesInSwitch": false,
+    "noFallthroughCasesInSwitch": true,
     "noUncheckedIndexedAccess": false,
+    "exactOptionalPropertyTypes": false,
     "noImplicitReturns": false,
     "noImplicitThis": false,
     "noPropertyAccessFromIndexSignature": false,
     "noUncheckedSideEffectImports": false
   },
   "include": [
-    "src"
+    "src",
+    "vite.config.ts"
   ]
 }

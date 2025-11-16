@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import { Particle } from '../../types/game';
 
 interface ParticleRendererProps {
@@ -7,46 +7,34 @@ interface ParticleRendererProps {
   canvasHeight: number;
 }
 
-const ParticleRenderer: React.FC<ParticleRendererProps> = ({ 
-  particles, 
-  canvasWidth, 
-  canvasHeight 
+const ParticleRenderer: React.FC<ParticleRendererProps> = ({
+  particles,
+  canvasWidth,
+  canvasHeight
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
 
-  useEffect(() => {
-    const canvas = canvasRef.current;
-    if (!canvas) return;
+  // 性能优化：只在有粒子时才渲染
+  const shouldRender = useMemo(() => {
+    return particles.length > 0;
+  }, [particles]);
 
-    const ctx = canvas.getContext('2d');
-    if (!ctx) return;
-
-    // 设置画布尺寸
-    canvas.width = canvasWidth;
-    canvas.height = canvasHeight;
-
-    // 清空画布
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-    // 绘制所有粒子
-    particles.forEach(particle => {
-      drawParticle(ctx, particle);
-    });
-  }, [particles, canvasWidth, canvasHeight]);
-
-  const drawParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
+  // 优化的绘制函数
+  const drawParticle = useCallback((ctx: CanvasRenderingContext2D, particle: Particle) => {
     ctx.save();
-    
+
     // 设置透明度
     ctx.globalAlpha = particle.alpha;
-    
+
     // 设置颜色
     ctx.fillStyle = particle.color;
     ctx.strokeStyle = particle.color;
-    
+
     switch (particle.type) {
       case 'circle':
-        drawCircleParticle(ctx, particle);
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
         break;
       case 'star':
         drawStarParticle(ctx, particle);
@@ -61,99 +49,103 @@ const ParticleRenderer: React.FC<ParticleRendererProps> = ({
         drawExplosionParticle(ctx, particle);
         break;
       default:
-        drawCircleParticle(ctx, particle);
+        // 默认圆形粒子
+        ctx.beginPath();
+        ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+        ctx.fill();
+        break;
     }
-    
+
+    ctx.restore();
+  }, []);
+
+  // 粒子绘制函数
+  const drawStarParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
+    ctx.save();
+    ctx.translate(particle.x, particle.y);
+    ctx.beginPath();
+    for (let i = 0; i < 5; i++) {
+      const angle = (i * 4 * Math.PI) / 5 - Math.PI / 2;
+      const x = Math.cos(angle) * particle.size;
+      const y = Math.sin(angle) * particle.size;
+      if (i === 0) ctx.moveTo(x, y);
+      else ctx.lineTo(x, y);
+    }
+    ctx.closePath();
+    ctx.fill();
     ctx.restore();
   };
 
-  const drawCircleParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
-    ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
-    ctx.fill();
-  };
-
-  const drawStarParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
-    const spikes = 5;
-    const outerRadius = particle.size;
-    const innerRadius = particle.size * 0.5;
-    
-    ctx.beginPath();
-    
-    for (let i = 0; i < spikes * 2; i++) {
-      const angle = (i / (spikes * 2)) * Math.PI * 2;
-      const radius = i % 2 === 0 ? outerRadius : innerRadius;
-      const x = particle.x + Math.cos(angle) * radius;
-      const y = particle.y + Math.sin(angle) * radius;
-      
-      if (i === 0) {
-        ctx.moveTo(x, y);
-      } else {
-        ctx.lineTo(x, y);
-      }
-    }
-    
-    ctx.closePath();
-    ctx.fill();
-    
-    // 添加发光效果
-    ctx.shadowBlur = particle.size * 2;
-    ctx.shadowColor = particle.color;
-    ctx.fill();
-  };
-
   const drawSparkParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
-    // 绘制十字形火花
-    ctx.lineWidth = Math.max(1, particle.size * 0.5);
-    
     ctx.beginPath();
     ctx.moveTo(particle.x - particle.size, particle.y);
     ctx.lineTo(particle.x + particle.size, particle.y);
     ctx.moveTo(particle.x, particle.y - particle.size);
     ctx.lineTo(particle.x, particle.y + particle.size);
     ctx.stroke();
-    
-    // 添加发光效果
-    ctx.shadowBlur = particle.size;
-    ctx.shadowColor = particle.color;
-    ctx.stroke();
   };
 
   const drawTrailParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
-    // 绘制带尾迹的圆形
-    const gradient = ctx.createRadialGradient(
-      particle.x, particle.y, 0,
-      particle.x, particle.y, particle.size * 2
-    );
-    gradient.addColorStop(0, particle.color);
-    gradient.addColorStop(1, 'transparent');
-    
-    ctx.fillStyle = gradient;
     ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.size * 2, 0, Math.PI * 2);
+    ctx.arc(particle.x, particle.y, particle.size * 0.5, 0, Math.PI * 2);
     ctx.fill();
   };
 
   const drawExplosionParticle = (ctx: CanvasRenderingContext2D, particle: Particle) => {
-    // 绘制爆炸碎片
-    const gradient = ctx.createRadialGradient(
-      particle.x, particle.y, 0,
-      particle.x, particle.y, particle.size
-    );
-    gradient.addColorStop(0, particle.color);
-    gradient.addColorStop(0.7, particle.color);
-    gradient.addColorStop(1, 'transparent');
-    
-    ctx.fillStyle = gradient;
+    ctx.save();
+    ctx.globalAlpha = particle.alpha * 1.5; // 爆炸粒子更亮
     ctx.beginPath();
-    ctx.arc(particle.x, particle.y, particle.size, 0, Math.PI * 2);
+    ctx.arc(particle.x, particle.y, particle.size * 1.2, 0, Math.PI * 2);
     ctx.fill();
-    
-    // 添加发光边缘
-    ctx.strokeStyle = particle.color;
-    ctx.lineWidth = 1;
-    ctx.stroke();
+    ctx.restore();
   };
+
+  // 优化的渲染循环
+  useEffect(() => {
+    if (!shouldRender) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 设置画布尺寸（只在需要时）
+    if (canvas.width !== canvasWidth || canvas.height !== canvasHeight) {
+      canvas.width = canvasWidth;
+      canvas.height = canvasHeight;
+    }
+
+    // 启用图像平滑
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // 清空画布
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    // 批量绘制粒子
+    if (particles.length > 0) {
+      // 按粒子类型分组以减少状态切换
+      const particlesByType = particles.reduce((acc, particle) => {
+        if (!acc[particle.type]) {
+          acc[particle.type] = [];
+        }
+        acc[particle.type].push(particle);
+        return acc;
+      }, {} as Record<string, Particle[]>);
+
+      // 按类型批量绘制
+      Object.entries(particlesByType).forEach(([type, typeParticles]) => {
+        typeParticles.forEach(particle => {
+          drawParticle(ctx, particle);
+        });
+      });
+    }
+  }, [particles, canvasWidth, canvasHeight, shouldRender, drawParticle]);
+
+  if (!shouldRender) {
+    return null; // 不渲染空画布
+  }
 
   return (
     <canvas

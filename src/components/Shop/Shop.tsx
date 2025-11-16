@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { BirdSkin } from '../../types/game';
+import { BaoniaoSkin } from '../../types/game';
 import { cn } from '../../lib/utils';
 import { RARITY_CONFIG } from '../../utils/skinSystem';
 import SkinCard from '../Skins/SkinCard';
@@ -10,12 +10,12 @@ import InsufficientCoinsDialog from './InsufficientCoinsDialog';
 import { useToast } from '../UI/ToastProvider';
 
 interface ShopProps {
-  skins: BirdSkin[];
+  skins: BaoniaoSkin[];
   currentSkinId: string;
   coins: number;
   onBack: () => void;
   onSkinSelect: (skinId: string) => void;
-  onSkinPurchase: (skinId: string, price: number) => Promise<{ success: boolean; reason: string; skin?: BirdSkin }>;
+  onSkinPurchase: (skinId: string, price: number) => Promise<{ success: boolean; reason: string; skin?: BaoniaoSkin }>;
 }
 
 type FilterType = 'all' | 'owned' | 'unowned' | 'basic' | 'normal' | 'skill' | 'common' | 'rare' | 'epic' | 'legendary';
@@ -31,7 +31,7 @@ const Shop: React.FC<ShopProps> = ({
 }) => {
   const [filter, setFilter] = useState<FilterType>('all');
   const [sort, setSort] = useState<SortType>('default');
-  const [selectedSkin, setSelectedSkin] = useState<BirdSkin | null>(null);
+  const [selectedSkin, setSelectedSkin] = useState<BaoniaoSkin | null>(null);
   const [showPurchaseDialog, setShowPurchaseDialog] = useState(false);
   const [showInsufficientDialog, setShowInsufficientDialog] = useState(false);
   const [purchaseLoading, setPurchaseLoading] = useState(false);
@@ -142,7 +142,7 @@ const Shop: React.FC<ShopProps> = ({
     };
   }, []);
   
-  const handleSkinAction = (skin: BirdSkin) => {
+  const handleSkinAction = (skin: BaoniaoSkin) => {
     const isOwned = skin.owned || skin.id === 'classic';
     
     console.log('Skin action:', { skinId: skin.id, isOwned, coins, price: skin.price });

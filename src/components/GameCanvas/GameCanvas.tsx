@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import React, { useRef, useEffect, useCallback, useMemo } from 'react';
 import { GameState, GameConfig, BaoniaoSkin, PowerUpInstance, CoinInstance } from '../../types/game';
 import { RARITY_COLORS } from '../../utils/powerUpSystem';
 
@@ -10,44 +10,82 @@ interface GameCanvasProps {
 
 const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
+  const offscreenCanvasRef = useRef<HTMLCanvasElement | null>(null);
+  const backgroundCacheRef = useRef<ImageData | null>(null);
 
-  // 绘制游戏场景
-  useEffect(() => {
+  // 创建离屏Canvas用于背景缓存
+  useMemo(() => {
+    const offscreenCanvas = document.createElement('canvas');
+    offscreenCanvas.width = config.canvasWidth;
+    offscreenCanvas.height = config.canvasHeight;
+    offscreenCanvasRef.current = offscreenCanvas;
+
+    // 预渲染背景
+    const offscreenCtx = offscreenCanvas.getContext('2d');
+    if (offscreenCtx) {
+      // 绘制背景渐变
+      const gradient = offscreenCtx.createLinearGradient(0, 0, 0, config.canvasHeight);
+      gradient.addColorStop(0, '#87CEEB');
+      gradient.addColorStop(0.7, '#98D8E8');
+      gradient.addColorStop(1, '#B0E0E6');
+      offscreenCtx.fillStyle = gradient;
+      offscreenCtx.fillRect(0, 0, config.canvasWidth, config.canvasHeight);
+
+      // 绘制云彩
+      drawClouds(offscreenCtx, config.canvasWidth, config.canvasHeight);
+
+      backgroundCacheRef.current = offscreenCtx.getImageData(0, 0, config.canvasWidth, config.canvasHeight);
+    }
+  }, [config.canvasWidth, config.canvasHeight]);
+
+  // 优化的绘制函数
+  const renderGame = useCallback(() => {
     const canvas = canvasRef.current;
     if (!canvas) return;
 
     const ctx = canvas.getContext('2d');
     if (!ctx) return;
 
-    // 设置画布尺寸
-    canvas.width = config.canvasWidth;
-    canvas.height = config.canvasHeight;
+    // 设置画布尺寸（只在需要时）
+    if (canvas.width !== config.canvasWidth || canvas.height !== config.canvasHeight) {
+      canvas.width = config.canvasWidth;
+      canvas.height = config.canvasHeight;
+    }
 
-    // 清空画布
-    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    // 启用图像平滑以获得更好的性能
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
 
-    // 绘制背景
-    const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
-    gradient.addColorStop(0, '#87CEEB'); // 天空蓝
-    gradient.addColorStop(0.7, '#98D8E8'); // 淡蓝
-    gradient.addColorStop(1, '#B0E0E6'); // 粉蓝
-    ctx.fillStyle = gradient;
-    ctx.fillRect(0, 0, canvas.width, canvas.height);
+    // 使用缓存的背景
+    if (backgroundCacheRef.current) {
+      ctx.putImageData(backgroundCacheRef.current, 0, 0);
+    } else {
+      // 备用背景渲染
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#87CEEB');
+      gradient.addColorStop(1, '#B0E0E6');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
 
-    // 绘制云彩
-    drawClouds(ctx, canvas.width, canvas.height);
+    // 批量绘制管道
+    ctx.save();
+    if (gameState.pipes.length > 0) {
+      gameState.pipes.forEach(pipe => drawPipe(ctx, pipe));
+    }
+    ctx.restore();
 
-    // 绘制管道
-    gameState.pipes.forEach(pipe => {
-      drawPipe(ctx, pipe);
-    });
-    
-    // 绘制金币道具
-    gameState.coinInstances.forEach(coinInstance => {
-      if (!coinInstance.collected) {
-        drawCoinInstance(ctx, coinInstance);
-      }
-    });
+    // 批量绘制金币道具
+    ctx.save();
+    if (gameState.coinInstances.length > 0) {
+      gameState.coinInstances.forEach(coinInstance => {
+        if (!coinInstance.collected) {
+          drawCoinInstance(ctx, coinInstance);
+        }
+      });
+    }
+    ctx.restore();
     
     // 绘制道具
     gameState.powerUps.forEach(powerUp => {
@@ -56,7 +94,18 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
       }
     });
 
-    // 绘制小鸟（支持皮肤系统和道具效果）
+    // 批量绘制道具
+    ctx.save();
+    if (gameState.powerUps.length > 0) {
+      gameState.powerUps.forEach(powerUp => {
+        if (!powerUp.collected) {
+          drawPowerUp(ctx, powerUp);
+        }
+      });
+    }
+    ctx.restore();
+
+    // 绘制宝鸟（支持皮肤系统和道具效果）
     drawBaoniao(ctx, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects);
 
     // 绘制地面
@@ -71,8 +120,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     } else if (gameState.status === 'gameOver') {
       drawGameOverOverlay(ctx, gameState.score, gameState.highScore, canvas.width, canvas.height);
     }
-
-  }, [gameState, config]);
+  }, [gameState, config, backgroundCacheRef.current]);
 
   // 绘制云彩
   const drawClouds = (ctx: CanvasRenderingContext2D, width: number, height: number) => {
@@ -612,7 +660,7 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
   };
   
   // 粒子效果
-  const drawParticleEffect = (ctx: CanvasRenderingContext2D, x: number, y: number, skin: BirdSkin) => {
+  const drawParticleEffect = (ctx: CanvasRenderingContext2D, x: number, y: number, skin: BaoniaoSkin) => {
     const time = Date.now() * 0.003;
     const particles = 8;
     
@@ -727,30 +775,174 @@ const GameCanvas: React.FC<GameCanvasProps> = ({ gameState, config, onJump }) =>
     ctx.fillText('按 R 键重新开始', width / 2, height / 2 + 60);
   };
 
+  // 优化的输入处理 - 添加防抖和多输入支持
+  const jumpTimeoutRef = useRef<NodeJS.Timeout>();
+  const lastJumpTimeRef = useRef<number>(0);
+
+  const handleJump = useCallback((event?: React.MouseEvent | React.TouchEvent | React.KeyboardEvent) => {
+    event?.preventDefault();
+
+    const currentTime = Date.now();
+    const timeSinceLastJump = currentTime - lastJumpTimeRef.current;
+
+    // 限制最小跳跃间隔（50ms）防止意外连击
+    if (timeSinceLastJump < 50) {
+      return;
+    }
+
+    // 清除之前的超时
+    if (jumpTimeoutRef.current) {
+      clearTimeout(jumpTimeoutRef.current);
+    }
+
+    // 小延迟确保更好的响应性
+    jumpTimeoutRef.current = setTimeout(() => {
+      onJump();
+      lastJumpTimeRef.current = Date.now();
+    }, 10);
+  }, [onJump]);
+
   // 鼠标点击事件
-  const handleCanvasClick = () => {
-    onJump();
+  const handleCanvasClick = (event: React.MouseEvent) => {
+    handleJump(event as any);
   };
+
+  // 触摸事件处理
+  const handleTouchStart = (event: React.TouchEvent) => {
+    handleJump(event as any);
+  };
+
+  // 键盘事件处理
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    switch (event.code) {
+      case 'Space':
+      case 'ArrowUp':
+      case 'KeyW': // 添加W键支持
+        event.preventDefault();
+        handleJump(event as any);
+        break;
+    }
+  };
+
+  // 优化的全局键盘监听
+  useEffect(() => {
+    const handleGlobalKeyDown = (event: KeyboardEvent) => {
+      switch (event.code) {
+        case 'Space':
+        case 'ArrowUp':
+        case 'KeyW':
+          if (document.activeElement === canvasRef.current) {
+            event.preventDefault();
+            handleJump(event as any);
+          }
+          break;
+      }
+    };
+
+    window.addEventListener('keydown', handleGlobalKeyDown);
+    return () => {
+      window.removeEventListener('keydown', handleGlobalKeyDown);
+      if (jumpTimeoutRef.current) {
+        clearTimeout(jumpTimeoutRef.current);
+      }
+    };
+  }, [handleJump]);
+
+  // 性能优化的渲染函数
+  const shouldRender = gameState.pipes.length > 0 ||
+                       gameState.coinInstances.length > 0 ||
+                       gameState.powerUps.length > 0 ||
+                       gameState.baoniao ||
+                       gameState.currentSkin ||
+                       gameState.status !== 'start';
+
+  useEffect(() => {
+    if (!shouldRender) return;
+
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+
+    const ctx = canvas.getContext('2d');
+    if (!ctx) return;
+
+    // 设置画布尺寸（只在需要时）
+    if (canvas.width !== config.canvasWidth || canvas.height !== config.canvasHeight) {
+      canvas.width = config.canvasWidth;
+      canvas.height = config.canvasHeight;
+    }
+
+    // 启用图像平滑以获得更好的性能
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
+
+    // 使用缓存的背景
+    if (backgroundCacheRef.current) {
+      ctx.putImageData(backgroundCacheRef.current, 0, 0);
+    } else {
+      // 备用背景渲染
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const gradient = ctx.createLinearGradient(0, 0, 0, canvas.height);
+      gradient.addColorStop(0, '#87CEEB');
+      gradient.addColorStop(1, '#B0E0E6');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, canvas.width, canvas.height);
+    }
+
+    // 绘制管道
+    gameState.pipes.forEach(pipe => {
+      drawPipe(ctx, pipe);
+    });
+
+    // 绘制金币道具
+    gameState.coinInstances.forEach(coinInstance => {
+      if (!coinInstance.collected) {
+        drawCoinInstance(ctx, coinInstance);
+      }
+    });
+
+    // 绘制道具
+    gameState.powerUps.forEach(powerUp => {
+      if (!powerUp.collected) {
+        drawPowerUp(ctx, powerUp);
+      }
+    });
+
+    // 绘制宝鸟
+    drawBaoniao(ctx, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects);
+
+    // 绘制地面
+    drawGround(ctx, canvas.width, canvas.height);
+
+    // 绘制分数
+    drawScore(ctx, gameState.score, canvas.width);
+
+    // 绘制游戏状态提示
+    if (gameState.status === 'paused') {
+      drawPausedOverlay(ctx, canvas.width, canvas.height);
+    } else if (gameState.status === 'gameOver') {
+      drawGameOverOverlay(ctx, gameState.score, gameState.highScore, canvas.width, canvas.height);
+  }
+  }, [gameState.pipes, gameState.coinInstances, gameState.powerUps, gameState.baoniao, gameState.currentSkin, gameState.powerUpEffects, gameState.status, gameState.score, gameState.highScore, config.canvasWidth, config.canvasHeight, backgroundCacheRef.current]);
 
   return (
     <canvas
       ref={canvasRef}
-      onClick={handleCanvasClick}
-      className="border-2 border-gray-300 rounded-lg shadow-lg cursor-pointer bg-white"
-      style={{ 
-        maxWidth: '100%', 
+      onMouseDown={handleCanvasClick}
+      onTouchStart={handleTouchStart}
+      onKeyDown={handleKeyDown}
+      className="border-2 border-gray-300 rounded-lg shadow-lg cursor-pointer bg-white transition-transform hover:scale-[1.01] active:scale-[0.99]"
+      style={{
+        maxWidth: '100%',
         height: 'auto',
-        touchAction: 'none' // 防止移动设备上的意外滚动
+        touchAction: 'none', // 防止移动设备上的意外滚动
+        userSelect: 'none',
+        WebkitUserSelect: 'none',
+        WebkitTapHighlightColor: 'transparent',
+        outline: 'none' // 移除焦点轮廓
       }}
-      aria-label="游戏画布，点击或按空格键使小鸟跳跃"
+      aria-label="宝鸟先飞游戏画布，点击、触摸或按空格键使宝鸟跳跃"
       role="button"
       tabIndex={0}
-      onKeyDown={(e) => {
-        if (e.code === 'Space') {
-          e.preventDefault();
-          onJump();
-        }
-      }}
     />
   );
 };

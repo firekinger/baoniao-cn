@@ -462,7 +462,7 @@ export const useGameState = () => {
     return success;
   }, []);
   
-  const purchaseSkin = useCallback(async (skinId: string, price: number): Promise<{ success: boolean; reason: string; skin?: BirdSkin }> => {
+  const purchaseSkin = useCallback(async (skinId: string, price: number): Promise<{ success: boolean; reason: string; skin?: BaoniaoSkin }> => {
     // 检查金币是否足够
     if (gameState.coinData.coins < price) {
       return { success: false, reason: '金币不足' };
@@ -498,12 +498,12 @@ export const useGameState = () => {
       
       // 原子性写入操作：先备份，然后同时更新
       const coinBackup = localStorage.getItem('flappyBirdCoins');
-      const skinBackup = localStorage.getItem('flappyBirdSkins');
+      const skinBackup = localStorage.getItem('flappyBaoniaoSkins');
       
       try {
         // 同时更新两个存储
         localStorage.setItem('flappyBirdCoins', JSON.stringify(newCoinData));
-        localStorage.setItem('flappyBirdSkins', JSON.stringify(newSkinData));
+        localStorage.setItem('flappyBaoniaoSkins', JSON.stringify(newSkinData));
         
         // 更新状态
         setGameState(prev => ({
@@ -521,7 +521,7 @@ export const useGameState = () => {
       } catch (storageError) {
         // 如果存储失败，还原数据
         if (coinBackup) localStorage.setItem('flappyBirdCoins', coinBackup);
-        if (skinBackup) localStorage.setItem('flappyBirdSkins', skinBackup);
+        if (skinBackup) localStorage.setItem('flappyBaoniaoSkins', skinBackup);
         throw storageError;
       }
       
@@ -1056,12 +1056,31 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
     });
   }, [gameOver, currentConfig]);
 
-  // 特效更新循环
+  // 特效更新循环 - 性能优化
   useEffect(() => {
+    if (!gameState.effectsEnabled) {
+      // 如果特效被禁用，清空特效但不更新
+      setPowerUpVisuals({
+        collectionEffects: [],
+        activeEffects: [],
+        screenEffects: [],
+        particles: []
+      });
+      return;
+    }
+
     const updateEffects = () => {
       setPowerUpVisuals(prev => {
         const currentTime = Date.now();
-        
+
+        // 优化：只在有特效时才更新
+        const hasEffects = prev.collectionEffects.length > 0 ||
+                          prev.activeEffects.length > 0 ||
+                          prev.screenEffects.length > 0 ||
+                          prev.particles.length > 0;
+
+        if (!hasEffects) return prev;
+
         return {
           collectionEffects: updateVisualEffects(prev.collectionEffects, currentTime),
           activeEffects: updateVisualEffects(prev.activeEffects, currentTime),
@@ -1070,21 +1089,40 @@ if (currentTime - lastPipeTimeRef.current > 2500) {
         };
       });
     };
-    
-    const effectsInterval = setInterval(updateEffects, 16); // 60 FPS
-    
-    return () => clearInterval(effectsInterval);
-  }, []);
 
-  // 游戏循环
+    // 使用 requestAnimationFrame 替代 setInterval 以获得更好的性能
+    let animationFrameId: number;
+    const effectsLoop = () => {
+      updateEffects();
+      animationFrameId = requestAnimationFrame(effectsLoop);
+    };
+    animationFrameId = requestAnimationFrame(effectsLoop);
+
+    return () => {
+      if (animationFrameId) {
+        cancelAnimationFrame(animationFrameId);
+      }
+    };
+  }, [gameState.effectsEnabled]);
+
+  // 游戏循环 - 性能优化
   useEffect(() => {
-    if (gameState.status === 'playing') {
-      const gameLoop = () => {
+    if (gameState.status !== 'playing') return;
+
+    let lastFrameTime = 0;
+    const targetFPS = 60;
+    const frameInterval = 1000 / targetFPS;
+
+    const gameLoop = (timestamp: number) => {
+      // 帧率控制，避免过度渲染
+      if (timestamp - lastFrameTime >= frameInterval) {
         updateGame();
-        animationFrameRef.current = requestAnimationFrame(gameLoop);
-      };
+        lastFrameTime = timestamp;
+      }
       animationFrameRef.current = requestAnimationFrame(gameLoop);
-    }
+    };
+
+    animationFrameRef.current = requestAnimationFrame(gameLoop);
 
     return () => {
       if (animationFrameRef.current) {
