@@ -1,0 +1,513 @@
+/* 原有动画 + 金币系统动画 + 增强特效动画 */
+@keyframes gradient-shift {
+  0% {
+    background-position: 0% 50%;
+  }
+  50% {
+    background-position: 100% 50%;
+  }
+  100% {
+    background-position: 0% 50%;
+  }
+}
+
+@keyframes fly-across {
+  0% {
+    transform: translateX(-100vw) translateY(0px) rotate(-5deg);
+  }
+  100% {
+    transform: translateX(100vw) translateY(-20px) rotate(5deg);
+  }
+}
+
+@keyframes meteor {
+  0% {
+    transform: translateX(0px) translateY(0px) rotate(45deg);
+    opacity: 1;
+  }
+  70% {
+    opacity: 1;
+  }
+  100% {
+    transform: translateX(300px) translateY(300px) rotate(45deg);
+    opacity: 0;
+  }
+}
+
+@keyframes bubble-rise {
+  0% {
+    transform: translateY(0px) scale(0.8);
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 0.6;
+    transform: translateY(-50vh) scale(1);
+  }
+  100% {
+    transform: translateY(-100vh) scale(1.2);
+    opacity: 0;
+  }
+}
+
+@keyframes glow-pulse {
+  0%, 100% {
+    opacity: 0.3;
+    transform: scale(1);
+    box-shadow: 0 0 20px currentColor;
+  }
+  50% {
+    opacity: 0.8;
+    transform: scale(1.05);
+    box-shadow: 0 0 40px currentColor, 0 0 60px currentColor;
+  }
+}
+
+@keyframes title-glow {
+  0%, 100% {
+    filter: drop-shadow(0 0 5px rgba(245, 158, 11, 0.5));
+  }
+  50% {
+    filter: drop-shadow(0 0 20px rgba(245, 158, 11, 0.8)) drop-shadow(0 0 30px rgba(245, 158, 11, 0.6));
+  }
+}
+
+@keyframes title-rainbow {
+  0% {
+    background: linear-gradient(45deg, #f59e0b, #ec4899, #8b5cf6, #06b6d4);
+    background-size: 200% 200%;
+    background-position: 0% 50%;
+  }
+  100% {
+    background-position: 100% 50%;
+  }
+}
+
+@keyframes char-bounce {
+  0%, 100% {
+    transform: translateY(0px) scale(1);
+  }
+  50% {
+    transform: translateY(-5px) scale(1.05);
+  }
+}
+
+@keyframes char-shimmer {
+  0%, 100% {
+    filter: brightness(1);
+  }
+  50% {
+    filter: brightness(1.1);
+  }
+}
+
+@keyframes orbit-1 {
+  0% {
+    transform: rotate(0deg) translateX(60px) rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg) translateX(60px) rotate(-360deg);
+  }
+}
+
+@keyframes orbit-2 {
+  0% {
+    transform: rotate(90deg) translateX(60px) rotate(-90deg);
+  }
+  100% {
+    transform: rotate(450deg) translateX(60px) rotate(-450deg);
+  }
+}
+
+@keyframes orbit-3 {
+  0% {
+    transform: rotate(180deg) translateX(50px) rotate(-180deg);
+  }
+  100% {
+    transform: rotate(540deg) translateX(50px) rotate(-540deg);
+  }
+}
+
+@keyframes orbit-4 {
+  0% {
+    transform: rotate(270deg) translateX(50px) rotate(-270deg);
+  }
+  100% {
+    transform: rotate(630deg) translateX(50px) rotate(-630deg);
+  }
+}
+
+@keyframes text-glow {
+  0%, 100% {
+    text-shadow: 0 0 3px rgba(234, 88, 12, 0.3);
+  }
+  50% {
+    text-shadow: 0 0 6px rgba(234, 88, 12, 0.5);
+  }
+}
+
+@keyframes wing-flap {
+  0%, 100% {
+    transform: rotate(-20deg) scaleY(1);
+  }
+  50% {
+    transform: rotate(-10deg) scaleY(0.8);
+  }
+}
+
+@keyframes sparkle {
+  0%, 100% {
+    opacity: 0;
+    transform: scale(0);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translateY(0px) rotate(-2deg);
+  }
+  50% {
+    transform: translateY(-10px) rotate(5deg);
+  }
+}
+
+@keyframes float-slow {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-20px) translateX(10px);
+  }
+}
+
+@keyframes float-delayed {
+  0%, 100% {
+    transform: translateY(0px) translateX(0px);
+  }
+  50% {
+    transform: translateY(-15px) translateX(-5px);
+  }
+}
+
+@keyframes tilt {
+  0%, 100% {
+    transform: rotate(-5deg);
+  }
+  50% {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes wing {
+  0%, 100% {
+    transform: rotate(-10deg) scale(1);
+  }
+  50% {
+    transform: rotate(10deg) scale(1.1);
+  }
+}
+
+@keyframes bounce-gentle {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes bounce-gentle-delayed {
+  0%, 100% {
+    transform: translateY(0px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes fade-in-up {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes pulse-slow {
+  0%, 100% {
+    opacity: 0.6;
+  }
+  50% {
+    opacity: 0.8;
+  }
+}
+
+/* 金币系统专用动画 */
+@keyframes coin-spin {
+  0% {
+    transform: rotateY(0deg);
+  }
+  50% {
+    transform: rotateY(90deg);
+  }
+  100% {
+    transform: rotateY(0deg);
+  }
+}
+
+@keyframes coin-bounce {
+  0%, 100% {
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    transform: translateY(-4px) scale(1.05);
+  }
+}
+
+@keyframes reward-float-up {
+  0% {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+  50% {
+    opacity: 1;
+    transform: translateY(-30px) scale(1.1);
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-60px) scale(0.9);
+  }
+}
+
+@keyframes coin-glow {
+  0%, 100% {
+    box-shadow: 0 0 5px rgba(234, 179, 8, 0.3);
+  }
+  50% {
+    box-shadow: 0 0 20px rgba(234, 179, 8, 0.6), 0 0 30px rgba(234, 179, 8, 0.4);
+  }
+}
+
+@keyframes number-count {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.5;
+  }
+  50% {
+    transform: scale(1.1);
+    opacity: 1;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes milestone-celebration {
+  0%, 100% {
+    transform: scale(1);
+  }
+  25% {
+    transform: scale(1.1) rotate(2deg);
+  }
+  50% {
+    transform: scale(1.2) rotate(-2deg);
+  }
+  75% {
+    transform: scale(1.1) rotate(1deg);
+  }
+}
+
+/* 应用动画类 + 新增特效类 */
+.animate-gradient-shift {
+  animation: gradient-shift 8s ease-in-out infinite;
+  background-size: 200% 200%;
+}
+
+.animate-fly-across {
+  animation: fly-across 12s linear infinite;
+}
+
+.animate-meteor {
+  animation: meteor 4s linear infinite;
+}
+
+.animate-bubble-rise {
+  animation: bubble-rise 8s linear infinite;
+}
+
+.animate-glow-pulse {
+  animation: glow-pulse 3s ease-in-out infinite;
+}
+
+.animate-title-glow {
+  animation: title-glow 2s ease-in-out infinite;
+}
+
+.animate-title-rainbow {
+  animation: title-rainbow 2s ease-in-out infinite;
+  -webkit-background-clip: text;
+  background-clip: text;
+}
+
+.animate-char-bounce {
+  animation: char-bounce 0.6s ease-in-out infinite;
+}
+
+.animate-char-shimmer {
+  animation: char-shimmer 1.5s ease-in-out infinite;
+}
+
+.animate-orbit-1 {
+  animation: orbit-1 8s linear infinite;
+}
+
+.animate-orbit-2 {
+  animation: orbit-2 10s linear infinite;
+}
+
+.animate-orbit-3 {
+  animation: orbit-3 12s linear infinite;
+}
+
+.animate-orbit-4 {
+  animation: orbit-4 9s linear infinite;
+}
+
+.animate-text-glow {
+  animation: text-glow 2s ease-in-out infinite;
+}
+
+.animate-wing-flap {
+  animation: wing-flap 0.4s ease-in-out infinite;
+}
+
+.animate-sparkle {
+  animation: sparkle 1.5s ease-in-out infinite;
+}
+
+.animate-float {
+  animation: float 3s ease-in-out infinite;
+}
+
+.animate-float-slow {
+  animation: float-slow 6s ease-in-out infinite;
+}
+
+.animate-float-delayed {
+  animation: float-delayed 8s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+.animate-tilt {
+  animation: tilt 2s ease-in-out infinite;
+}
+
+.animate-wing {
+  animation: wing 0.5s ease-in-out infinite;
+}
+
+.animate-bounce-gentle {
+  animation: bounce-gentle 2s ease-in-out infinite;
+}
+
+.animate-bounce-gentle-delayed {
+  animation: bounce-gentle-delayed 2s ease-in-out infinite;
+  animation-delay: 0.5s;
+}
+
+.animate-fade-in-up {
+  animation: fade-in-up 1s ease-out forwards;
+  animation-delay: 2s;
+  opacity: 0;
+}
+
+.animate-pulse-slow {
+  animation: pulse-slow 4s ease-in-out infinite;
+}
+
+/* 金币系统动画类 */
+.animate-coin-spin {
+  animation: coin-spin 1.5s ease-in-out infinite;
+}
+
+.animate-coin-bounce {
+  animation: coin-bounce 0.6s ease-in-out;
+}
+
+.animate-reward-float {
+  animation: reward-float-up 2s ease-out forwards;
+}
+
+.animate-coin-glow {
+  animation: coin-glow 2s ease-in-out infinite;
+}
+
+.animate-number-count {
+  animation: number-count 0.3s ease-out;
+}
+
+.animate-milestone {
+  animation: milestone-celebration 1s ease-in-out;
+}
+
+/* 悬停放大效果 */
+.hover\:scale-103:hover {
+  transform: scale(1.03);
+}
+
+/* 点击缩放效果 */
+.active\:scale-95:active {
+  transform: scale(0.95);
+}
+
+/* 响应式设计 */
+@media (max-width: 768px) {
+  .animate-float {
+    animation-duration: 2s;
+  }
+  
+  .animate-tilt {
+    animation-duration: 1.5s;
+  }
+  
+  .animate-coin-spin {
+    animation-duration: 1s;
+  }
+}
+
+/* 无障碍支持 */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* 高对比度支持 */
+@media (prefers-contrast: high) {
+  .bg-gradient-to-r {
+    background: #ff6600;
+  }
+  
+  .text-transparent {
+    color: #333;
+    background: none;
+    -webkit-background-clip: unset;
+    background-clip: unset;
+  }
+  
+  /* 金币高对比度模式 */
+  .bg-gradient-to-br.from-yellow-300 {
+    background: #fbbf24;
+  }
+}

@@ -1,51 +1,199 @@
-# React + TypeScript + Vite
+# 宝鸟先飞 (Baoniao Xianfei)
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+宝鸟先飞是一款基于 React + TypeScript + Vite 开发的现代化网页游戏，灵感来源于经典的 Flappy Bird 玩法，但拥有全新的游戏体验和丰富的功能特性。
 
-Currently, two official plugins are available:
+## 🎮 游戏特色
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react/README.md) uses [Babel](https://babeljs.io/) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+### 核心玩法
+- **经典管道挑战**: 点击控制宝鸟穿过管道，碰撞即游戏结束
+- **四种难度等级**: 简单、普通、困难、专家，适合不同水平玩家
+- **物理引擎**: 60FPS 流畅游戏体验，真实的重力物理效果
 
-## Expanding the ESLint configuration
+### 🪙 金币系统
+- **多样化奖励**: 管道奖励、连击奖励、时长奖励、里程碑奖励
+- **金币道具**: 游戏中出现可收集的金币，增加策略性
+- **金币倍数**: 通过道具获得金币收集倍数加成
 
-If you are developing a production application, we recommend updating the configuration to enable type aware lint rules:
+### 🎨 皮肤系统
+- **丰富皮肤库**: 20+ 款不同风格和稀有度的宝鸟皮肤
+- **技能皮肤**: 特殊皮肤带有独特技能（旋风冲刺、闪电传送、火球攻击等）
+- **皮肤效果**: 发光、闪烁、渐变、粒子等视觉效果
 
-- Configure the top-level `parserOptions` property like this:
+### ⚡ 道具系统
+- **临时增益**: 无敌护盾、速度提升、磁铁吸引等
+- **视觉特效**: 华丽的道具收集和激活特效
+- **策略组合**: 不同道具组合产生不同游戏策略
 
-```js
-export default tseslint.config({
-  languageOptions: {
-    // other options...
-    parserOptions: {
-      project: ['./tsconfig.node.json', './tsconfig.app.json'],
-      tsconfigRootDir: import.meta.dirname,
+### 🏆 排行榜与成就
+- **本地排行榜**: 记录不同难度的最高分
+- **玩家系统**: 自定义玩家名称和头像
+- **成就系统**: 完美表现、连击记录等特殊成就
+
+## 🛠️ 技术栈
+
+- **前端框架**: React 18.3 + TypeScript
+- **构建工具**: Vite 6.0
+- **UI 组件**: Radix UI + Tailwind CSS
+- **状态管理**: React Hooks + 自定义游戏状态管理
+- **画布渲染**: HTML5 Canvas 2D API
+- **数据持久化**: LocalStorage
+- **动画效果**: RequestAnimationFrame 60FPS
+
+## 📦 安装与运行
+
+### 环境要求
+- Node.js >= 18.0.0
+- pnpm >= 8.0.0 (推荐)
+
+### 开发环境
+
+```bash
+# 安装依赖并启动开发服务器
+pnpm dev
+
+# 构建开发版本
+pnpm build
+
+# 构建生产版本
+pnpm build:prod
+
+# 运行代码检查
+pnpm lint
+
+# 预览生产构建
+pnpm preview
+```
+
+**注意**: 所有命令都会自动运行 `pnpm install`，无需手动安装依赖。
+
+## 🎯 游戏操作
+
+### 基础操作
+- **空格键**: 控制宝鸟向上飞
+- **P 键**: 暂停/继续游戏
+- **R 键**: 重新开始（游戏结束时）
+- **E 键**: 激活皮肤技能（拥有技能皮肤时）
+
+### 鼠标/触摸
+- **点击屏幕**: 向上飞行
+- **点击UI按钮**: 各种菜单操作
+
+## 📁 项目结构
+
+```
+src/
+├── components/           # React 组件
+│   ├── CoinSystem/      # 金币系统相关组件
+│   ├── Effects/         # 视觉特效组件
+│   ├── GameCanvas/      # 游戏画布核心组件
+│   ├── Shop/           # 商店相关组件
+│   ├── Skins/          # 皮肤系统组件
+│   └── UI/             # 通用UI组件
+├── hooks/              # 自定义 React Hooks
+│   └── useGameState.ts # 游戏状态管理核心
+├── types/              # TypeScript 类型定义
+│   └── game.ts        # 游戏相关类型
+├── utils/              # 工具函数
+│   ├── coinSystem.ts   # 金币系统逻辑
+│   ├── skinSystem.ts   # 皮肤系统逻辑
+│   ├── skillSystem.ts  # 技能系统逻辑
+│   └── gameUtils.ts    # 游戏工具函数
+└── App.tsx             # 主应用组件
+```
+
+## 🎨 自定义与扩展
+
+### 添加新皮肤
+在 `src/utils/skinSystem.ts` 中的 `BAONIAO_SKINS` 对象添加新皮肤：
+
+```typescript
+export const BAONIAO_SKINS: Record<string, BaoniaoSkin> = {
+  // ... 现有皮肤
+  customSkin: {
+    id: 'customSkin',
+    name: '自定义皮肤',
+    description: '你的自定义皮肤描述',
+    price: 500,
+    rarity: 'epic',
+    category: 'skill',
+    colors: {
+      primary: '#ff6b6b',
+      secondary: '#ffd93d',
+      accent: '#6bcf7f'
     },
-  },
-})
+    skill: {
+      // 技能配置
+    }
+  }
+};
 ```
 
-- Replace `tseslint.configs.recommended` to `tseslint.configs.recommendedTypeChecked` or `tseslint.configs.strictTypeChecked`
-- Optionally add `...tseslint.configs.stylisticTypeChecked`
-- Install [eslint-plugin-react](https://github.com/jsx-eslint/eslint-plugin-react) and update the config:
+### 添加新技能
+在 `src/utils/skinSystem.ts` 中的 `SKIN_SKILLS` 对象添加新技能：
 
-```js
-// eslint.config.js
-import react from 'eslint-plugin-react'
-
-export default tseslint.config({
-  // Set the react version
-  settings: { react: { version: '18.3' } },
-  plugins: {
-    // Add the react plugin
-    react,
-  },
-  rules: {
-    // other rules...
-    // Enable its recommended rules
-    ...react.configs.recommended.rules,
-    ...react.configs['jsx-runtime'].rules,
-  },
-})
+```typescript
+export const SKIN_SKILLS: Record<string, SkinSkill> = {
+  // ... 现有技能
+  customSkill: {
+    id: 'customSkill',
+    name: '自定义技能',
+    description: '技能描述',
+    cooldown: 30000,
+    icon: '🌟',
+    effectType: 'custom',
+    effectDuration: 5000,
+    effectValue: 1.0
+  }
+};
 ```
-# baoniao-cn
+
+## 🐛 故障排除
+
+### 常见问题
+
+1. **游戏不响应点击**
+   - 确保浏览器支持 Canvas API
+   - 检查控制台是否有 JavaScript 错误
+
+2. **皮肤显示异常**
+   - 清除浏览器缓存和 LocalStorage
+   - 检查网络连接（加载在线资源时）
+
+3. **分数保存失败**
+   - 确保 LocalStorage 可用
+   - 检查浏览器隐私设置
+
+### 开发调试
+
+```bash
+# 查看详细的游戏状态日志
+# 在浏览器控制台中过滤 [DEBUG] 标签
+
+# 检查游戏状态
+console.log(gameState);
+
+# 查看当前皮肤信息
+import { getCurrentSkin } from './src/utils/skinSystem';
+console.log(getCurrentSkin());
+```
+
+## 📄 许可证
+
+本项目采用 MIT 许可证 - 查看 [LICENSE](LICENSE) 文件了解详情。
+
+## 🤝 贡献
+
+欢迎提交 Issue 和 Pull Request！
+
+1. Fork 本项目
+2. 创建特性分支 (`git checkout -b feature/AmazingFeature`)
+3. 提交更改 (`git commit -m 'Add some AmazingFeature'`)
+4. 推送到分支 (`git push origin feature/AmazingFeature`)
+5. 开启 Pull Request
+
+## 🙏 致谢
+
+- 感谢 Vite 团队提供优秀的构建工具
+- 感谢 Radix UI 提供高质量的无障碍组件
+- 灵感来源于经典游戏 Flappy Bird
+- 感谢所有参与测试和反馈的玩家
